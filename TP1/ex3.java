@@ -15,36 +15,45 @@ Na saída padrão, para cada linha de entrada, escreva a linha
 criptografada.
  * 
 */
-
 import java.util.Scanner;
 
 public class ex3 {
+
+    public static boolean Parada(String line) {
+        return (line.length() == 3 &&
+                line.charAt(0) == 'F' &&
+                line.charAt(1) == 'I' &&
+                line.charAt(2) == 'M');
+    }
+
     public static String cifrar(String texto) {
-        StringBuilder resultado = new StringBuilder();
-        
+        char[] resultado = new char[texto.length()];
+
         for (int i = 0; i < texto.length(); i++) {
             char c = texto.charAt(i);
+
             if (c >= 32 && c <= 126) {
                 c = (char) ((c - 32 + 3) % 95 + 32);
             }
-            resultado.append(c);
+            resultado[i] = c;
         }
-        
-        return resultado.toString();
+
+        String resp = "";
+        for (int i = 0; i < resultado.length; i++) {
+            resp += resultado[i];
+        }
+
+        return resp;
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        while (sc.hasNextLine()) {
-            String entrada = sc.nextLine();
-            if(entrada.isEmpty()) break;
-             if (entrada.equals("FIM")){
-                break;
-            }else{
-                String cifrada = cifrar(entrada);
-                System.out.println(cifrada);
-            }
+        String entrada = sc.nextLine();
+        while (!Parada(entrada)) {
+            String cifrada = cifrar(entrada);
+            System.out.println(cifrada);
+            entrada = sc.nextLine();
         }
 
         sc.close();

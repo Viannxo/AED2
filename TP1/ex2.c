@@ -10,6 +10,12 @@ pode conter caracteres não letras.*/
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+
+bool Parada(char str[]){
+    return strlen(str) == 3 && str[0]== 'F' && str[1] == 'I' && str[2] == 'M';
+}
+
+
 bool palindromo(char str[], int inicio, int fim){
     if(inicio >= fim){
         return true;
@@ -20,22 +26,37 @@ bool palindromo(char str[], int inicio, int fim){
     return palindromo(str, inicio + 1, fim - 1);
 }
 
-int main(){
+int main() {
     char str[1000];
     int n;
-    int end;
-    // printf("Digite uma string: ");
-    while (fgets(str, 1000, stdin) != NULL) {
+
+    // lê uma linha
+    fgets(str, sizeof(str), stdin);
+
+    // tira o \n do final
+    n = strlen(str);
+    if (n > 0 && str[n - 1] == '\n') {
+        str[n - 1] = '\0';
+        n--;
+    }
+
+    while (!Parada(str)) {
+        if (palindromo(str, 0, n - 1)) {
+            printf("SIM\n");
+        } else {
+            printf("NAO\n");
+        }
+
+        if (fgets(str, sizeof(str), stdin) == NULL) {
+            return 0; 
+        }
+
         n = strlen(str);
         if (n > 0 && str[n - 1] == '\n') {
             str[n - 1] = '\0';
             n--;
         }
-        end = n - 1;
-        if (palindromo(str, 0, end)) {
-            printf("SIM\n");
-        } else {
-            printf("NAO\n");
-        }
     }
+
+    return 0;
 }
