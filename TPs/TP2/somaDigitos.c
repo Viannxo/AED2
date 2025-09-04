@@ -16,20 +16,22 @@ bool Parada(char str[])
     return strlen(str) == 3 && str[0] == 'F' && str[1] == 'I' && str[2] == 'M';
 }
 
-int somaDigitos(int n)
+int somaDigitos(int n, int soma)
 {
-    if (n == 0)
+    if (n <= 0)
     {
-        return 0;
+        return soma;
     }
-    else
-    {
-        return (n % 10) + somaDigitos(n / 10);
-    }
+    soma += n % 10;
+    n /= 10;
+    
+    return somaDigitos(n , soma);
+    
 }
 
 int main()
 {
+    int soma=0;
     char in[100];
     while (fgets(in, sizeof(in), stdin))
     {
@@ -50,8 +52,8 @@ int main()
                 return 0;
             }
 
-            int result = somaDigitos(num);
-            printf("%d\n", result);
+            soma = somaDigitos(num, 0);
+            printf("%d\n", soma);
         }
     }
     return 0;
