@@ -8,7 +8,7 @@ cada linha de entrada, escreva uma linha
 de saída com SIM/NÃO indicando se a linha 
 é um palíndromo. Observe que a entrada 
 pode conter caracteres não letras.*/
-import java.util.*;
+
 
 public class ex1 {
 
