@@ -2,28 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "java",
-      "name": "selectSortOtim",
-      "request": "launch",
-      "mainClass": "JAVA.AlgoritmosOrdenacao.selectSortOtim",
-      "projectName": "AED2_241306f0"
-    },
-    {
-      "type": "java",
-      "name": "selectSort",
-      "request": "launch",
-      "mainClass": "JAVA.AlgoritmosOrdenacao.selectSort",
-      "projectName": "AED2_241306f0"
-    },
-    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": ".",
-      "program": "build/Debug/outDebug",
+      "cwd": "c:/Users/eduar/OneDrive/Área de Trabalho/Puc/2025.2/AED2/Exercicios/IntroSomatorio",
+      "program": "c:/Users/eduar/OneDrive/Área de Trabalho/Puc/2025.2/AED2/Exercicios/IntroSomatorio/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

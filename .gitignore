@@ -1,3 +1,7 @@
+
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json
 IntroSomatorio/.vscode/c_cpp_properties.json
-IntroSomatorio/.vscode/launch.json
-IntroSomatorio/.vscode/settings.json
+.gitignore
