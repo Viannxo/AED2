@@ -47,8 +47,11 @@ public class selectSortOtim {
             }
                 count++;
             }
-            ss.swap(ss.n-i-1, max);
             ss.swap(i, min);
+            if(max == i) 
+                max = min;
+            ss.swap(ss.n-i-1, max);
+            
 
         }
         System.out.println("Vetor ordenado: " + Arrays.toString(ss.vetor));
