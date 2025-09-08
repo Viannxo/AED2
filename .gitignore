@@ -5,3 +5,4 @@
 .vscode/tasks.json
 IntroSomatorio/.vscode/c_cpp_properties.json
 .gitignore
+.vscode/launch.json
