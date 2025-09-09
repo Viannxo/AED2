@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "InserSort",
+      "request": "launch",
+      "mainClass": "JAVA.AlgoritmosOrdenacao.InserSort",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
+      "name": "gridLargada",
+      "request": "launch",
+      "mainClass": "JAVA.Lab.gridLargada",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
       "name": "SortSortSortInterativo",
       "request": "launch",
       "mainClass": "JAVA.Lab.SortSortSortInterativo",
