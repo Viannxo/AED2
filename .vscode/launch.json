@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "sortSortSort",
+      "request": "launch",
+      "mainClass": "JAVA.Lab.sortSortSort",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
       "name": "bubbleSort",
       "request": "launch",
       "mainClass": "JAVA.AlgoritmosOrdenacao.bubbleSort",

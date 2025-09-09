@@ -10,7 +10,7 @@ public class bubbleSort {
     int n;
     int[] vetor;
 
-    public void feelVec() {
+    public void fillVec() {
         System.out.println("Digite o tamanho do vetor: ");
         n = scan.nextInt();
         vetor = new int[n];
@@ -28,7 +28,7 @@ public class bubbleSort {
 
     public static void main(String[] agrs) {
         bubbleSort bs = new bubbleSort();
-        bs.feelVec();
+        bs.fillVec();
         int count = 0;
         int count2 = 0;
         int i = 0;

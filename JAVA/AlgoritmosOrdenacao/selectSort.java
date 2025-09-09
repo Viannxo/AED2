@@ -10,7 +10,7 @@ public class selectSort {
     Scanner scan = new Scanner(System.in);
     Random random = new Random();
 
-    public void feelVec(    ){
+    public void fillVec(    ){
         System.out.println("Digite o tamanho do vetor: ");
         n = scan.nextInt();
         vetor = new int[n];
@@ -29,7 +29,7 @@ public class selectSort {
 
     public static void main(String[] agrs){
         selectSort ss = new selectSort();
-        ss.feelVec();
+        ss.fillVec();
         int min;
         int count2=0;
         int count = 0;

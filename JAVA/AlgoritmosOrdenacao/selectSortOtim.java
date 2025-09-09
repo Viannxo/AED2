@@ -10,7 +10,7 @@ public class selectSortOtim {
     Scanner scan = new Scanner(System.in);
     Random random = new Random();
 
-    public void feelVec(    ){
+    public void fillVec(    ){
         System.out.println("Digite o tamanho do vetor: ");
         n = scan.nextInt();
         vetor = new int[n];
@@ -29,7 +29,7 @@ public class selectSortOtim {
 
     public static void main(String[] agrs){
         selectSortOtim ss = new selectSortOtim();
-        ss.feelVec();
+        ss.fillVec();
         int min;
         int max;
         int count2=0;
