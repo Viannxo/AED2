@@ -1,5 +1,3 @@
-package JAVA.AlgoritmosOrdenacao;
-
 import java.util.Scanner;
 
     // [3, 1 , 8 , 6 , 2]

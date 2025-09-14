@@ -1,4 +1,4 @@
-
+package JAVA.Lab;
 
 import java.util.Scanner;
 
@@ -11,7 +11,7 @@ public class gridLargada {
 
     //Scanner sc = new Scanner(System.in);
 
-    public int[] input(int n) {
+    public int[] input(int n, Scanner sc) {
         this.n = n;
         vet = new int[n];
         for (int i = 0; i < n; i++) {
@@ -44,10 +44,10 @@ public class gridLargada {
         int x=0;
         do{
         gridLargada gl = new gridLargada();
-        gl.n = gl.sc.nextInt();
-        gl.vet = gl.input(gl.n);
+        gl.n = sc.nextInt();
+        gl.vet = gl.input(gl.n, sc);
 
-        gl.vet2 = gl.input(gl.n);
+        gl.vet2 = gl.input(gl.n, sc);
         gl.ultrapassagens = 0;
         gl.bubbleSort(gl.vet2);
         System.out.println(gl.ultrapassagens);

@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "InversorStringRecursivo",
+      "request": "launch",
+      "mainClass": "TPs.TP3.InversorStringRecursivo",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
+      "name": "SomaDigitosRecursivo",
+      "request": "launch",
+      "mainClass": "TPs.TP3.SomaDigitosRecursivo",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
       "name": "InserSort",
       "request": "launch",
       "mainClass": "JAVA.AlgoritmosOrdenacao.InserSort",
