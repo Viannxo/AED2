@@ -3,7 +3,7 @@ package JAVA.Lab;
 import java.util.Random;
 import java.util.Arrays;
 
-public class QuickSortPivotStrategies {
+public class compOrdenacao {
 
     private static final Random RANDOM = new Random();
 
@@ -31,38 +31,38 @@ public class QuickSortPivotStrategies {
         return (i + 1);
     }
 
-    public static void QuickSortFirstPivot(int[] vet, int esq, int dir) {
+    public static void QuickSortPrimPivo(int[] vet, int esq, int dir) {
         if (esq < dir) {
             int nPivo = esq;
             int pi = partition(vet, esq, dir, nPivo);
             
-            QuickSortFirstPivot(vet, esq, pi - 1);
-            QuickSortFirstPivot(vet, pi + 1, dir);
+            QuickSortPrimPivo(vet, esq, pi - 1);
+            QuickSortPrimPivo(vet, pi + 1, dir);
         }
     }
 
-    public static void QuickSortLastPivot(int[] vet, int esq, int dir) {
+    public static void QuickSortUltmPivo(int[] vet, int esq, int dir) {
         if (esq < dir) {
             int nPivo = dir;
             int pi = partition(vet, esq, dir, nPivo);
             
-            QuickSortLastPivot(vet, esq, pi - 1);
-            QuickSortLastPivot(vet, pi + 1, dir);
+            QuickSortUltmPivo(vet, esq, pi - 1);
+            QuickSortUltmPivo(vet, pi + 1, dir);
         }
     }
 
-    public static void QuickSortRandomPivot(int[] vet, int esq, int dir) {
+    public static void QuickSortRandomPivo(int[] vet, int esq, int dir) {
         if (esq < dir) {
             int nPivo = esq + RANDOM.nextInt(dir - esq + 1);
             
             int pi = partition(vet, esq, dir, nPivo);
             
-            QuickSortRandomPivot(vet, esq, pi - 1);
-            QuickSortRandomPivot(vet, pi + 1, dir);
+            QuickSortRandomPivo(vet, esq, pi - 1);
+            QuickSortRandomPivo(vet, pi + 1, dir);
         }
     }
 
-    public static void QuickSortMedianOfThree(int[] vet, int esq, int dir) {
+    public static void QuickSortMediana3(int[] vet, int esq, int dir) {
         if (esq < dir) {
             int meio = esq + (dir - esq) / 2;
             
@@ -77,8 +77,8 @@ public class QuickSortPivotStrategies {
             
             int pi = partition(vet, esq, dir, nPivo);
             
-            QuickSortMedianOfThree(vet, esq, pi - 1);
-            QuickSortMedianOfThree(vet, pi + 1, dir);
+            QuickSortMediana3(vet, esq, pi - 1);
+            QuickSortMediana3(vet, pi + 1, dir);
         }
     }
 
@@ -89,19 +89,19 @@ public class QuickSortPivotStrategies {
         System.out.println("Vetor original: " + Arrays.toString(original));
 
         int[] vet1 = Arrays.copyOf(original, n);
-        QuickSortFirstPivot(vet1, 0, n - 1);
-        System.out.println("\nQuickSortFirstPivot (Pivo no inicio): " + Arrays.toString(vet1));
+        QuickSortPrimPivo(vet1, 0, n - 1);
+        System.out.println("\nQuickSortPrimPivo (Pivo no inicio): " + Arrays.toString(vet1));
 
         int[] vet2 = Arrays.copyOf(original, n);
-        QuickSortLastPivot(vet2, 0, n - 1);
-        System.out.println("QuickSortLastPivot (Pivo no fim): " + Arrays.toString(vet2));
+        QuickSortUltmPivo(vet2, 0, n - 1);
+        System.out.println("QuickSortUltmPivo (Pivo no fim): " + Arrays.toString(vet2));
         
         int[] vet3 = Arrays.copyOf(original, n);
-        QuickSortRandomPivot(vet3, 0, n - 1);
-        System.out.println("QuickSortRandomPivot (Pivo aleatorio): " + Arrays.toString(vet3));
+        QuickSortRandomPivo(vet3, 0, n - 1);
+        System.out.println("QuickSortRandomPivo (Pivo aleatorio): " + Arrays.toString(vet3));
 
         int[] vet4 = Arrays.copyOf(original, n);
-        QuickSortMedianOfThree(vet4, 0, n - 1);
-        System.out.println("QuickSortMedianOfThree (Mediana de 3): " + Arrays.toString(vet4));
+        QuickSortMediana3(vet4, 0, n - 1);
+        System.out.println("QuickSortMediana3 (Mediana de 3): " + Arrays.toString(vet4));
     }
 }
