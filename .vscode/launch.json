@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "QuickSortPivotStrategies",
+      "request": "launch",
+      "mainClass": "JAVA.Lab.QuickSortPivotStrategies",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
+      "name": "compOrdenacao",
+      "request": "launch",
+      "mainClass": "JAVA.Lab.compOrdenacao",
+      "projectName": "AED2_241306f0"
+    },
+    {
+      "type": "java",
       "name": "InversorStringRecursivo",
       "request": "launch",
       "mainClass": "TPs.TP3.InversorStringRecursivo",
