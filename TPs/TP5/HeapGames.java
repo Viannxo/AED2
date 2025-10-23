@@ -4,9 +4,7 @@ import java.text.*;
 
 public class HeapGames {
 
-    // =========================================================================
-    // CLASSE GAME (Com ajuste no print para formatação de arrays)
-    // =========================================================================
+    //classe Game
     public static class Game {
         private int id;
         private String name;
@@ -23,94 +21,180 @@ public class HeapGames {
         private String[] genres;
         private String[] tags;
 
-        public Game() {}
+        public Game() {
+        }
 
         // Getters e Setters
-        public int getId() { return id; }
+        public int getId() {
+            return id;
+        }
+
         public void setId(String idStr) {
-            try { this.id = Integer.parseInt(idStr.trim()); } catch (Exception e) { this.id = -1; }
+            try {
+                this.id = Integer.parseInt(idStr.trim());
+            } catch (Exception e) {
+                this.id = -1;
+            }
         }
 
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name != null ? name.trim() : ""; }
+        public String getName() {
+            return name;
+        }
 
-        public String getReleaseDate() { return releaseDate; }
-        public void setReleaseDate(String s) { this.releaseDate = normalizeReleaseDate(s); }
+        public void setName(String name) {
+            this.name = name != null ? name.trim() : "";
+        }
 
-        public int getEstimatedOwners() { return estimatedOwners; }
+        public String getReleaseDate() {
+            return releaseDate;
+        }
+
+        public void setReleaseDate(String s) {
+            this.releaseDate = normalizeReleaseDate(s);
+        }
+
+        public int getEstimatedOwners() {
+            return estimatedOwners;
+        }
+
         public void setEstimatedOwners(String str) {
-            if (str == null || str.isEmpty()) this.estimatedOwners = 0;
-            else this.estimatedOwners = Integer.parseInt(str.replaceAll("[^0-9]", ""));
+            if (str == null || str.isEmpty())
+                this.estimatedOwners = 0;
+            else
+                this.estimatedOwners = Integer.parseInt(str.replaceAll("[^0-9]", ""));
         }
 
-        public float getPrice() { return price; }
+        public float getPrice() {
+            return price;
+        }
+
         public void setPrice(String str) {
-            if (str == null || str.isEmpty() || str.equalsIgnoreCase("Free to Play")) this.price = 0.0f;
-            else this.price = Float.parseFloat(str.replace(",", "."));
+            if (str == null || str.isEmpty() || str.equalsIgnoreCase("Free to Play"))
+                this.price = 0.0f;
+            else
+                this.price = Float.parseFloat(str.replace(",", "."));
         }
 
-        public String[] getSupportedLanguages() { return supportedLanguages; }
-        public void setSupportedLanguages(String str) { this.supportedLanguages = parseArrayField(str); }
+        public String[] getSupportedLanguages() {
+            return supportedLanguages;
+        }
 
-        public int getMetacriticScore() { return metacriticScore; }
+        public void setSupportedLanguages(String str) {
+            this.supportedLanguages = parseArrayField(str);
+        }
+
+        public int getMetacriticScore() {
+            return metacriticScore;
+        }
+
         public void setMetacriticScore(String str) {
-            if (str == null || str.isEmpty()) this.metacriticScore = -1;
+            if (str == null || str.isEmpty())
+                this.metacriticScore = -1;
             else {
-                try { this.metacriticScore = Integer.parseInt(str.trim()); } catch (Exception e) { this.metacriticScore = -1; }
+                try {
+                    this.metacriticScore = Integer.parseInt(str.trim());
+                } catch (Exception e) {
+                    this.metacriticScore = -1;
+                }
             }
         }
 
-        public float getUserScore() { return userScore; }
+        public float getUserScore() {
+            return userScore;
+        }
+
         public void setUserScore(String str) {
-            if (str == null || str.isEmpty() || str.equalsIgnoreCase("tbd")) this.userScore = -1.0f;
-            else this.userScore = Float.parseFloat(str.replace(",", "."));
+            if (str == null || str.isEmpty() || str.equalsIgnoreCase("tbd"))
+                this.userScore = -1.0f;
+            else
+                this.userScore = Float.parseFloat(str.replace(",", "."));
         }
 
-        public int getAchievements() { return achievements; }
+        public int getAchievements() {
+            return achievements;
+        }
+
         public void setAchievements(String str) {
-            if (str == null || str.isEmpty()) this.achievements = 0;
+            if (str == null || str.isEmpty())
+                this.achievements = 0;
             else {
-                try { this.achievements = Integer.parseInt(str.trim()); } catch (Exception e) { this.achievements = 0; }
+                try {
+                    this.achievements = Integer.parseInt(str.trim());
+                } catch (Exception e) {
+                    this.achievements = 0;
+                }
             }
         }
 
-        public String[] getPublishers() { return publishers; }
-        public void setPublishers(String str) { this.publishers = splitByComma(str); }
+        public String[] getPublishers() {
+            return publishers;
+        }
 
-        public String[] getDevelopers() { return developers; }
-        public void setDevelopers(String str) { this.developers = splitByComma(str); }
+        public void setPublishers(String str) {
+            this.publishers = splitByComma(str);
+        }
 
-        public String[] getCategories() { return categories; }
-        public void setCategories(String str) { this.categories = parseArrayField(str); }
+        public String[] getDevelopers() {
+            return developers;
+        }
 
-        public String[] getGenres() { return genres; }
-        public void setGenres(String str) { this.genres = parseArrayField(str); }
+        public void setDevelopers(String str) {
+            this.developers = splitByComma(str);
+        }
 
-        public String[] getTags() { return tags; }
-        public void setTags(String str) { this.tags = parseArrayField(str); }
+        public String[] getCategories() {
+            return categories;
+        }
+
+        public void setCategories(String str) {
+            this.categories = parseArrayField(str);
+        }
+
+        public String[] getGenres() {
+            return genres;
+        }
+
+        public void setGenres(String str) {
+            this.genres = parseArrayField(str);
+        }
+
+        public String[] getTags() {
+            return tags;
+        }
+
+        public void setTags(String str) {
+            this.tags = parseArrayField(str);
+        }
 
         private String[] parseArrayField(String text) {
-            if (text == null || text.isEmpty()) return new String[0];
+            if (text == null || text.isEmpty())
+                return new String[0];
             text = text.replaceAll("\\[|\\]", "").replace("'", "").trim();
             String[] parts = text.split(",");
             for (int i = 0; i < parts.length; i++) {
                 parts[i] = parts[i].trim();
-                if (parts[i].equalsIgnoreCase("Shoot Em Up")) parts[i] = "Shoot 'Em Up";
-                else if (parts[i].equalsIgnoreCase("Beat Em Up")) parts[i] = "Beat 'em up";
-                else if(parts[i].equalsIgnoreCase("1990s")) parts[i] = "1990's";
+                if (parts[i].equalsIgnoreCase("Shoot Em Up"))
+                    parts[i] = "Shoot 'Em Up";
+                else if (parts[i].equalsIgnoreCase("Beat Em Up"))
+                    parts[i] = "Beat 'em up";
+                else if (parts[i].equalsIgnoreCase("1990s"))
+                    parts[i] = "1990's";
             }
             return parts;
         }
 
         private String[] splitByComma(String text) {
-            if (text == null || text.isEmpty()) return new String[0];
+            if (text == null || text.isEmpty())
+                return new String[0];
             String[] parts = text.split(",");
-            for (int i = 0; i < parts.length; i++) parts[i] = parts[i].trim();
+            for (int i = 0; i < parts.length; i++)
+                parts[i] = parts[i].trim();
             return parts;
         }
 
         private static String normalizeReleaseDate(String s) {
-            if (s == null || s.trim().isEmpty()) return "01/01/0001";
+            if (s == null || s.trim().isEmpty())
+                return "01/01/0001";
             s = s.trim().replace("\"", "");
 
             SimpleDateFormat csvFullFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH);
@@ -125,7 +209,8 @@ public class HeapGames {
                     Date date = csvMonthYearFormat.parse(s);
                     return "01/" + new SimpleDateFormat("MM/yyyy").format(date);
                 } catch (ParseException e2) {
-                    if (s.matches("^\\d{4}$")) return "01/01/" + s;
+                    if (s.matches("^\\d{4}$"))
+                        return "01/01/" + s;
                     return "01/01/2000";
                 }
             }
@@ -133,32 +218,30 @@ public class HeapGames {
 
         private String formatPrice(float value) {
             String formatted = String.format(Locale.US, "%.2f", value);
-            if (formatted.endsWith(".00")) return "0.0";
+            if (formatted.endsWith(".00"))
+                return "0.0";
             if (formatted.charAt(formatted.length() - 1) == '0')
                 return String.format(Locale.US, "%.1f", value);
             return formatted;
         }
 
         public void print() {
-            // Ajuste para remover o espaço após a vírgula dentro dos arrays
             System.out.print("=> " + id + " ## " + name + " ## " + releaseDate + " ## " +
                     estimatedOwners + " ## " + formatPrice(price) + " ## " +
-                    Arrays.toString(supportedLanguages).replace(", ", ",") + " ## " +
+                    Arrays.toString(supportedLanguages) + " ## " +
                     metacriticScore + " ## " +
                     String.format(Locale.US, "%.1f", userScore) + " ## " +
                     achievements + " ## " +
-                    Arrays.toString(publishers).replace(", ", ",") + " ## " +
-                    Arrays.toString(developers).replace(", ", ",") + " ## " +
-                    Arrays.toString(categories).replace(", ", ",") + " ## " +
-                    Arrays.toString(genres).replace(", ", ",") + " ## " +
-                    Arrays.toString(tags).replace(", ", ",") + " ##");
+                    Arrays.toString(publishers) + " ## " +
+                    Arrays.toString(developers) + " ## " +
+                    Arrays.toString(categories) + " ## " +
+                    Arrays.toString(genres) + " ## " +
+                    Arrays.toString(tags) + " ##");
             System.out.println();
         }
     }
 
-    // =========================================================================
-    // MÉTODOS AUXILIARES
-    // =========================================================================
+    //metodos aux 
     public static boolean Parada(String line) {
         return (line.length() == 3 &&
                 line.charAt(0) == 'F' &&
@@ -173,7 +256,8 @@ public class HeapGames {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = splitCSVLine(line);
-                if (fields.length < 14) continue;
+                if (fields.length < 14)
+                    continue;
 
                 Game g = new Game();
                 g.setId(fields[0]);
@@ -205,11 +289,13 @@ public class HeapGames {
         StringBuilder field = new StringBuilder();
 
         for (char c : line.toCharArray()) {
-            if (c == '\"') inQuotes = !inQuotes;
+            if (c == '\"')
+                inQuotes = !inQuotes;
             else if (c == ',' && !inQuotes) {
                 result.add(field.toString());
                 field.setLength(0);
-            } else field.append(c);
+            } else
+                field.append(c);
         }
         result.add(field.toString());
         return result.toArray(new String[0]);
@@ -217,14 +303,13 @@ public class HeapGames {
 
     public static Game findById(List<Game> list, int id) {
         for (Game g : list) {
-            if (g.getId() == id) return g;
+            if (g.getId() == id)
+                return g;
         }
         return null;
     }
 
-    // =========================================================================
-    // HEAPSORT (Completado)
-    // =========================================================================
+    //heapsort
     public static class HeapSortStats {
         long comparacoes = 0;
         long movimentacoes = 0;
@@ -233,49 +318,41 @@ public class HeapGames {
     public static void heapSort(Game[] arr, HeapSortStats stats) {
         int n = arr.length;
 
-        // Constrói o Max Heap (reorganiza o array)
         for (int i = n / 2 - 1; i >= 0; i--)
-            heapify(arr, n, i, stats);
+            doHeap(arr, n, i, stats);
 
-        // Extrai elementos um por um
+        //leitura 1 por 1
         for (int i = n - 1; i > 0; i--) {
-            // Move a raiz atual para o final (troca arr[0] com arr[i])
+            // raiz atual para o final
             swap(arr, 0, i, stats);
 
-            // Chama heapify no heap reduzido
-            heapify(arr, i, 0, stats);
+            // execução do heap no heap reduzido
+            doHeap(arr, i, 0, stats);
         }
     }
 
-    private static void heapify(Game[] arr, int n, int i, HeapSortStats stats) {
-        int largest = i; // Inicializa o maior como raiz
-        int left = 2 * i + 1; // índice do filho esquerdo
-        int right = 2 * i + 2; // índice do filho direito
+    private static void doHeap(Game[] arr, int n, int i, HeapSortStats stats) {
+        int largest = i; // raiz=maior
+        int left = 2 * i + 1; // filho esquerdo
+        int right = 2 * i + 2; // filho direito
 
         // Se o filho esquerdo é maior que a raiz
-        // compareGames > 0 significa que arr[left] é "maior" que arr[largest]
-        if (left < n && compareGames(arr[left], arr[largest], stats) > 0)
+        if (left < n && compGames(arr[left], arr[largest], stats) > 0)
             largest = left;
 
         // Se o filho direito é maior que o maior até agora
-        // compareGames > 0 significa que arr[right] é "maior" que arr[largest]
-        if (right < n && compareGames(arr[right], arr[largest], stats) > 0)
+        if (right < n && compGames(arr[right], arr[largest], stats) > 0)
             largest = right;
 
         // Se o maior não for a raiz
         if (largest != i) {
             swap(arr, i, largest, stats);
-            // Chama recursivamente heapify na sub-árvore afetada
-            heapify(arr, n, largest, stats);
+            doHeap(arr, n, largest, stats);
         }
     }
 
-    /**
-     * Compara dois objetos Game: EstimatedOwners (primário) e Id (secundário).
-     * Retorna um valor positivo se a > b, 0 se a == b, e negativo se a < b.
-     * Incrementa o contador de comparações.
-     */
-    private static int compareGames(Game a, Game b, HeapSortStats stats) {
+   
+    private static int compGames(Game a, Game b, HeapSortStats stats) {
         stats.comparacoes++;
         if (a.getEstimatedOwners() != b.getEstimatedOwners())
             return Integer.compare(a.getEstimatedOwners(), b.getEstimatedOwners());
@@ -283,9 +360,6 @@ public class HeapGames {
             return Integer.compare(a.getId(), b.getId());
     }
 
-    /**
-     * Troca dois elementos e conta 3 movimentações (atribuições) para a troca.
-     */
     private static void swap(Game[] arr, int i, int j, HeapSortStats stats) {
         Game temp = arr[i];
         arr[i] = arr[j];
@@ -293,9 +367,7 @@ public class HeapGames {
         stats.movimentacoes += 3;
     }
 
-    // =========================================================================
-    // MAIN (Corrigido para executar ordenação, medir tempo e imprimir resultados/log)
-    // =========================================================================
+    // main
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String csvPath = "/tmp/games.csv";
@@ -304,35 +376,29 @@ public class HeapGames {
         List<Game> selectedGames = new ArrayList<>();
         String line;
 
-        // Leitura dos IDs até encontrar "FIM"
-        while (sc.hasNextLine() && !(line = sc.nextLine().trim()).equalsIgnoreCase("FIM")) {
+        // parada
+        while (true){
+            String input = sc.nextLine().trim();
+            if (Parada(input)) break;
             try {
-                int id = Integer.parseInt(line);
+                int id = Integer.parseInt(input);
                 Game g = findById(gamesList, id);
-                if (g != null) selectedGames.add(g);
-            } catch (NumberFormatException e) {}
+                if (g != null)
+                    selectedGames.add(g);
+            } catch (NumberFormatException e) {
+            }
         }
         sc.close();
 
         Game[] gamesArray = selectedGames.toArray(new Game[0]);
         HeapSortStats stats = new HeapSortStats();
-
-        // Medição do tempo
-        long startTime = System.currentTimeMillis();
-        
+    
         // Execução do Heapsort
         heapSort(gamesArray, stats);
-        
-        long endTime = System.currentTimeMillis();
-        long executionTime = endTime - startTime;
 
-        // Impressão dos registros ordenados
+        //print ordenados
         for (Game game : gamesArray) {
             game.print();
         }
-
-        // Impressão do Log de Desempenho (separado por tabulação)
-        // Comparações \t Movimentações \t Tempo de execução
-        System.out.println(stats.comparacoes + "\t" + stats.movimentacoes + "\t" + executionTime + "ms");
     }
 }
