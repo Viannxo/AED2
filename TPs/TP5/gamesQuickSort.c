@@ -199,13 +199,12 @@ static void game_set_categories(Game *g, const char *s) { char tmp[MAX_STR]; str
 static void game_set_genres(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); parse_array_field_into(tmp, g->genres, &g->numGenres, MAX_LIST); }
 static void game_set_tags(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); parse_array_field_into(tmp, g->tags, &g->numTags, MAX_LIST); }
 
-/* ========================= Funções auxiliares de Impressão (Corrigido o espaço) ========================= */
+//metodos aux
 
 static void format_price_str(char *dest, size_t size, float price) {
     snprintf(dest, size, "%.2f", price);
 }
 
-// CORRIGIDO: Garante a formatação [item1, item2, item3] sem espaços extras.
 static void print_array_brackets(char array[][MAX_STR], int count) {
     printf("[");
     for (int i = 0; i < count; i++) {
@@ -242,7 +241,7 @@ static int readFromCSV(const char *filePath, Game *games, int maxGames) {
     if (!fgets(line, sizeof(line), f)) { fclose(f); return 0; }
     int count = 0;
     
-    // Substituição de 'while (fgets(...) && count < maxGames)' com lógica de 'continue' interna
+    // leitura
     while (count < maxGames && fgets(line, sizeof(line), f)) {
         char *nl = strchr(line, '\n'); 
         if (nl) *nl = '\0';
@@ -250,7 +249,6 @@ static int readFromCSV(const char *filePath, Game *games, int maxGames) {
         char fields[MAX_FIELDS][MAX_STR] = {{0}};
         int nfields = splitCSVLine(line, fields, MAX_FIELDS);
         
-        // Remoção de 'continue'
         if (nfields >= 14) {
             Game g; game_init(&g);
             game_set_id(&g, fields[0]);
@@ -274,7 +272,7 @@ static int readFromCSV(const char *filePath, Game *games, int maxGames) {
     return count;
 }
 
-/* ========================= Funções Quicksort ========================= */
+//quicksort
 
 int compGames(const Game *a, const Game *b) {
     int d1, m1, y1;
