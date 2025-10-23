@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "HeapGames",
+      "request": "launch",
+      "mainClass": "HeapGames",
+      "projectName": "AED2_4920b751"
+    },
+    {
+      "type": "java",
       "name": "QuickSortPivotStrategies",
       "request": "launch",
       "mainClass": "JAVA.Lab.QuickSortPivotStrategies",

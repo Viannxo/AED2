@@ -5,7 +5,7 @@ import java.text.*;
 public class HeapGames {
 
     // =========================================================================
-    // CLASSE GAME (inalterada)
+    // CLASSE GAME (Com ajuste no print para formatação de arrays)
     // =========================================================================
     public static class Game {
         private int id;
@@ -140,17 +140,18 @@ public class HeapGames {
         }
 
         public void print() {
+            // Ajuste para remover o espaço após a vírgula dentro dos arrays
             System.out.print("=> " + id + " ## " + name + " ## " + releaseDate + " ## " +
                     estimatedOwners + " ## " + formatPrice(price) + " ## " +
-                    Arrays.toString(supportedLanguages) + " ## " +
+                    Arrays.toString(supportedLanguages).replace(", ", ",") + " ## " +
                     metacriticScore + " ## " +
                     String.format(Locale.US, "%.1f", userScore) + " ## " +
                     achievements + " ## " +
-                    Arrays.toString(publishers) + " ## " +
-                    Arrays.toString(developers) + " ## " +
-                    Arrays.toString(categories) + " ## " +
-                    Arrays.toString(genres) + " ## " +
-                    Arrays.toString(tags) + " ##");
+                    Arrays.toString(publishers).replace(", ", ",") + " ## " +
+                    Arrays.toString(developers).replace(", ", ",") + " ## " +
+                    Arrays.toString(categories).replace(", ", ",") + " ## " +
+                    Arrays.toString(genres).replace(", ", ",") + " ## " +
+                    Arrays.toString(tags).replace(", ", ",") + " ##");
             System.out.println();
         }
     }
@@ -222,7 +223,7 @@ public class HeapGames {
     }
 
     // =========================================================================
-    // HEAPSORT
+    // HEAPSORT (Completado)
     // =========================================================================
     public static class HeapSortStats {
         long comparacoes = 0;
@@ -232,32 +233,48 @@ public class HeapGames {
     public static void heapSort(Game[] arr, HeapSortStats stats) {
         int n = arr.length;
 
+        // Constrói o Max Heap (reorganiza o array)
         for (int i = n / 2 - 1; i >= 0; i--)
             heapify(arr, n, i, stats);
 
+        // Extrai elementos um por um
         for (int i = n - 1; i > 0; i--) {
+            // Move a raiz atual para o final (troca arr[0] com arr[i])
             swap(arr, 0, i, stats);
+
+            // Chama heapify no heap reduzido
             heapify(arr, i, 0, stats);
         }
     }
 
     private static void heapify(Game[] arr, int n, int i, HeapSortStats stats) {
-        int largest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
+        int largest = i; // Inicializa o maior como raiz
+        int left = 2 * i + 1; // índice do filho esquerdo
+        int right = 2 * i + 2; // índice do filho direito
 
+        // Se o filho esquerdo é maior que a raiz
+        // compareGames > 0 significa que arr[left] é "maior" que arr[largest]
         if (left < n && compareGames(arr[left], arr[largest], stats) > 0)
             largest = left;
 
+        // Se o filho direito é maior que o maior até agora
+        // compareGames > 0 significa que arr[right] é "maior" que arr[largest]
         if (right < n && compareGames(arr[right], arr[largest], stats) > 0)
             largest = right;
 
+        // Se o maior não for a raiz
         if (largest != i) {
             swap(arr, i, largest, stats);
+            // Chama recursivamente heapify na sub-árvore afetada
             heapify(arr, n, largest, stats);
         }
     }
 
+    /**
+     * Compara dois objetos Game: EstimatedOwners (primário) e Id (secundário).
+     * Retorna um valor positivo se a > b, 0 se a == b, e negativo se a < b.
+     * Incrementa o contador de comparações.
+     */
     private static int compareGames(Game a, Game b, HeapSortStats stats) {
         stats.comparacoes++;
         if (a.getEstimatedOwners() != b.getEstimatedOwners())
@@ -266,6 +283,9 @@ public class HeapGames {
             return Integer.compare(a.getId(), b.getId());
     }
 
+    /**
+     * Troca dois elementos e conta 3 movimentações (atribuições) para a troca.
+     */
     private static void swap(Game[] arr, int i, int j, HeapSortStats stats) {
         Game temp = arr[i];
         arr[i] = arr[j];
@@ -274,7 +294,7 @@ public class HeapGames {
     }
 
     // =========================================================================
-    // MAIN
+    // MAIN (Corrigido para executar ordenação, medir tempo e imprimir resultados/log)
     // =========================================================================
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -284,27 +304,35 @@ public class HeapGames {
         List<Game> selectedGames = new ArrayList<>();
         String line;
 
-        while (sc.hasNextLine() && !(line = sc.nextLine()).equalsIgnoreCase("FIM")) {
+        // Leitura dos IDs até encontrar "FIM"
+        while (sc.hasNextLine() && !(line = sc.nextLine().trim()).equalsIgnoreCase("FIM")) {
             try {
-                int id = Integer.parseInt(line.trim());
+                int id = Integer.parseInt(line);
                 Game g = findById(gamesList, id);
                 if (g != null) selectedGames.add(g);
             } catch (NumberFormatException e) {}
         }
+        sc.close();
 
         Game[] gamesArray = selectedGames.toArray(new Game[0]);
         HeapSortStats stats = new HeapSortStats();
 
+        // Medição do tempo
         long startTime = System.currentTimeMillis();
+        
+        // Execução do Heapsort
         heapSort(gamesArray, stats);
+        
         long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
 
-        for (Game game : gamesArray) game.print();
+        // Impressão dos registros ordenados
+        for (Game game : gamesArray) {
+            game.print();
+        }
 
-        System.err.println("Tempo de execução: " + (endTime - startTime) + "ms");
-        System.err.println("Comparações: " + stats.comparacoes);
-        System.err.println("Movimentações: " + stats.movimentacoes);
-
-        sc.close();
+        // Impressão do Log de Desempenho (separado por tabulação)
+        // Comparações \t Movimentações \t Tempo de execução
+        System.out.println(stats.comparacoes + "\t" + stats.movimentacoes + "\t" + executionTime + "ms");
     }
 }
