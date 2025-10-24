@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <time.h>
 
 #define MAX_STR 1024 
 #define MAX_LIST 50
@@ -33,7 +32,7 @@ typedef struct {
     int numTags;
 } Game;
 
-/* ========================= Funções auxiliares (Parser) ========================= */
+//funcoes aux
 
 static char *trim(char *s) {
     if (!s) return s;
@@ -44,24 +43,34 @@ static char *trim(char *s) {
     return s;
 }
 
+//remove [ ] e '' e divide por vírgulas
 static void parse_array_field_into(char *s, char dest[][MAX_STR], int *count, int max_elems) {
     *count = 0;
     if (!s || strlen(s) == 0) return;
+    
+    // 1. Limpa (remove [, ], ') + copia
     char cleaned_s[MAX_STR];
     int k = 0;
     for (int i = 0; s[i] && k < MAX_STR-1; i++) {
-        // Remoção de 'continue' substituída por uma condição de escrita controlada
-        if (!(s[i] == '[' || s[i] == ']' || s[i] == '\'')) {
-            cleaned_s[k++] = s[i];
-        }
+        // Remove colchetes e aspas simples
+        if (s[i] == '[' || s[i] == ']' || s[i] == '\'') continue; 
+        cleaned_s[k++] = s[i];
     }
     cleaned_s[k] = '\0';
+    
+    // 2. Tokeniza o campo limpo
     char *token = strtok(cleaned_s, ",");
     while (token && *count < max_elems) {
         char t[MAX_STR];
         strncpy(t, token, MAX_STR-1);
         t[MAX_STR-1] = '\0';
-        trim(t);
+        trim(t); // Aplica o trim NO ITEM INDIVIDUAL
+        
+        // Aplica substituições especiais
+        if (strcasecmp(t, "Shoot Em Up") == 0) strcpy(t, "Shoot 'Em Up");
+        else if (strcasecmp(t, "Beat Em Up") == 0) strcpy(t, "Beat 'em up");
+        else if (strcasecmp(t, "1990s") == 0) strcpy(t, "1990's");
+        
         strncpy(dest[*count], t, MAX_STR-1);
         dest[*count][MAX_STR-1] = '\0';
         (*count)++;
@@ -69,6 +78,7 @@ static void parse_array_field_into(char *s, char dest[][MAX_STR], int *count, in
     }
 }
 
+/* Divide campos separados por vírgula */
 static void split_by_comma_into(char *s, char dest[][MAX_STR], int *count, int max_elems) {
     *count = 0;
     if (!s || strlen(s) == 0) return;
@@ -85,6 +95,7 @@ static void split_by_comma_into(char *s, char dest[][MAX_STR], int *count, int m
     }
 }
 
+/* Converte preço para float */
 static float parse_price(const char *s) {
     if (!s) return 0.0f;
     char tmp[MAX_STR];
@@ -94,25 +105,25 @@ static float parse_price(const char *s) {
     if (strcasecmp(tmp, "Free to Play") == 0 || strlen(tmp) == 0) return 0.0f;
     for (char *p = tmp; *p; ++p) if (*p == ',') *p = '.';
     char filtered[MAX_STR]; int j = 0;
-    for (int i = 0; tmp[i] && j < MAX_STR-1; ++i) {
+    for (int i = 0; tmp[i] && j < MAX_STR-1; ++i)
         if (isdigit((unsigned char)tmp[i]) || tmp[i] == '.' || tmp[i] == '-')
             filtered[j++] = tmp[i];
-    }
     filtered[j] = '\0';
     if (strlen(filtered) == 0) return 0.0f;
     return strtof(filtered, NULL);
 }
 
+/* Extrai dígitos do campo de proprietários */
 static int parse_estimated_owners(const char *s) {
     if (!s) return 0;
     char tmp[MAX_STR]; int j = 0;
-    for (int i = 0; s[i] && j < MAX_STR-1; ++i) {
+    for (int i = 0; s[i] && j < MAX_STR-1; ++i)
         if (isdigit((unsigned char)s[i])) tmp[j++] = s[i];
-    }
     tmp[j] = '\0';
     return j ? atoi(tmp) : 0;
 }
 
+/* Converte score (tbd -> -1.0) */
 static float parse_user_score(const char *s) {
     if (!s) return -1.0f;
     char tmp[MAX_STR];
@@ -124,15 +135,16 @@ static float parse_user_score(const char *s) {
     return strtof(tmp, NULL);
 }
 
+// Mês abreviado -> número 
 static int month_str_to_int(const char *m) {
     if (!m) return -1;
     const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 12; i++)
         if (strncasecmp(m, months + i*3, 3) == 0) return i + 1;
-    }
     return -1;
 }
 
+//Normaliza datas (vários formatos -> dd/mm/yyyy) 
 static void normalize_release_date(char *src, char out[11]) {
     if (!src || strlen(src) == 0) { strcpy(out, "01/01/0001"); return; }
     char s[MAX_STR];
@@ -148,16 +160,47 @@ static void normalize_release_date(char *src, char out[11]) {
     if (sscanf(s, "%3s %d, %d", mon, &day, &year) == 3) {
         month = month_str_to_int(mon);
         if (month>0 && day>0 && year>0) { snprintf(out, 11, "%02d/%02d/%04d", day, month, year); return; }
-    } else if (sscanf(s, "%3s %d", mon, &year) == 2) {
+    }
+    if (sscanf(s, "%3s %d", mon, &year) == 2) {
         month = month_str_to_int(mon);
         if (month>0 && year>0) { snprintf(out, 11, "01/%02d/%04d", month, year); return; }
-    } else if (sscanf(s, "%d", &year) == 1 && strlen(s) == 4) {
-        snprintf(out, 11, "01/01/%04d", year);
-    } else {
-        strcpy(out, "01/01/2000");
     }
+    if (sscanf(s, "%d", &year) == 1 && strlen(s) == 4)
+        snprintf(out, 11, "01/01/%04d", year);
+    else strcpy(out, "01/01/2000");
 }
 
+//formata preço para saída
+static void format_price_str(char *buf, size_t bufsize, float value) {
+    char tmp[64];
+    snprintf(tmp, sizeof(tmp), "%.2f", value);
+    size_t L = strlen(tmp);
+    if (L >= 3 && strcmp(tmp + L - 3, ".00") == 0)
+        snprintf(buf, bufsize, "0.0");
+    else if (L >= 2 && tmp[L-1] == '0')
+        snprintf(buf, bufsize, "%.1f", value);
+    else snprintf(buf, bufsize, "%.2f", value);
+}
+
+//imprime arrays
+static void print_array_brackets(char arr[][MAX_STR], int n) {
+    printf("[");
+    for (int i = 0; i < n; ++i) {
+        if (i) printf(", "); 
+        printf("%s", arr[i]);
+    }
+    printf("]");
+}
+static void print_langs(char arr[][MAX_STR], int n) {//saida apresentava erro nos idiomas então fiz um print para os idiomas
+    printf("[");
+    for (int i = 0; i < n; ++i) {
+        if (i) printf(","); 
+        printf("%s", arr[i]);
+    }
+    printf("]");
+}
+
+//divide linhas
 static int splitCSVLine(const char *line, char fields[][MAX_STR], int max_fields) {
     int fi = 0, inQuotes = 0, ci = 0;
     char cur[MAX_STR];
@@ -175,7 +218,8 @@ static int splitCSVLine(const char *line, char fields[][MAX_STR], int max_fields
     return fi;
 }
 
-//setters da classe
+//funções 
+
 static void game_init(Game *g) {
     memset(g, 0, sizeof(Game));
     g->id = -1;
@@ -197,32 +241,12 @@ static void game_set_publishers(Game *g, const char *s) { char tmp[MAX_STR]; str
 static void game_set_developers(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); split_by_comma_into(tmp, g->developers, &g->numDevelopers, MAX_LIST); }
 static void game_set_categories(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); parse_array_field_into(tmp, g->categories, &g->numCategories, MAX_LIST); }
 static void game_set_genres(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); parse_array_field_into(tmp, g->genres, &g->numGenres, MAX_LIST); }
-static void game_set_tags(Game *g, const char *s) { char tmp[MAX_STR]; strncpy(tmp, s ? s : "", MAX_STR-1); parse_array_field_into(tmp, g->tags, &g->numTags, MAX_LIST); }
-
-//metodos aux
-
-static void format_price_str(char *dest, size_t size, float price) {
-    snprintf(dest, size, "%.2f", price);
+static void game_set_tags(Game *g, const char *s) { 
+    char tmp[MAX_STR]; 
+    strncpy(tmp, s ? s : "", MAX_STR-1); 
+    tmp[MAX_STR-1] = '\0';
+    parse_array_field_into(tmp, g->tags, &g->numTags, MAX_LIST); 
 }
-
-static void print_array_brackets(char array[][MAX_STR], int count) {
-    printf("[");
-    for (int i = 0; i < count; i++) {
-        if (i > 0) printf(", ");
-        printf("%s", array[i]);
-    }
-    printf("]");
-}
-
-static void print_langs(char arr[][MAX_STR], int n) {//saida apresentava erro nos idiomas então fiz um print para os idiomas
-    printf("[");
-    for (int i = 0; i < n; ++i) {
-        if (i) printf(","); 
-        printf("%s", arr[i]);
-    }
-    printf("]");
-}
-
 
 static void game_print(const Game *g) {
     char pricebuf[64];
@@ -243,153 +267,116 @@ static void game_print(const Game *g) {
     print_array_brackets(g->tags, g->numTags); printf(" ##\n");
 }
 
-//metodos csv
+//leitura do CSV
+
 static int readFromCSV(const char *filePath, Game *games, int maxGames) {
     FILE *f = fopen(filePath, "r");
     if (!f) return 0;
     char line[MAX_LINE];
     if (!fgets(line, sizeof(line), f)) { fclose(f); return 0; }
     int count = 0;
-    
-    // leitura
-    while (count < maxGames && fgets(line, sizeof(line), f)) {
-        char *nl = strchr(line, '\n'); 
-        if (nl) *nl = '\0';
-        
+    while (fgets(line, sizeof(line), f) && count < maxGames) {
+        char *nl = strchr(line, '\n'); if (nl) *nl = '\0';
         char fields[MAX_FIELDS][MAX_STR] = {{0}};
         int nfields = splitCSVLine(line, fields, MAX_FIELDS);
-        
-        if (nfields >= 14) {
-            Game g; game_init(&g);
-            game_set_id(&g, fields[0]);
-            game_set_name(&g, fields[1]);
-            game_set_release_date(&g, fields[2]);
-            game_set_estimated_owners(&g, fields[3]);
-            game_set_price(&g, fields[4]);
-            game_set_supported_languages(&g, fields[5]);
-            game_set_metacritic(&g, fields[6]);
-            game_set_user_score(&g, fields[7]);
-            game_set_achievements(&g, fields[8]);
-            game_set_publishers(&g, fields[9]);
-            game_set_developers(&g, fields[10]);
-            game_set_categories(&g, fields[11]);
-            game_set_genres(&g, fields[12]);
-            game_set_tags(&g, fields[13]);
-            games[count++] = g;
-        }
+        if (nfields < 14) continue;
+        Game g; game_init(&g);
+        game_set_id(&g, fields[0]);
+        game_set_name(&g, fields[1]);
+        game_set_release_date(&g, fields[2]);
+        game_set_estimated_owners(&g, fields[3]);
+        game_set_price(&g, fields[4]);
+        game_set_supported_languages(&g, fields[5]);
+        game_set_metacritic(&g, fields[6]);
+        game_set_user_score(&g, fields[7]);
+        game_set_achievements(&g, fields[8]);
+        game_set_publishers(&g, fields[9]);
+        game_set_developers(&g, fields[10]);
+        game_set_categories(&g, fields[11]);
+        game_set_genres(&g, fields[12]);
+        game_set_tags(&g, fields[13]);
+        games[count++] = g;
     }
     fclose(f);
     return count;
 }
 
-//quicksort
-
-int compGames(const Game *a, const Game *b) {
-    int d1, m1, y1;
-    int d2, m2, y2;
-
-    if (sscanf(a->releaseDate, "%d/%d/%d", &d1, &m1, &y1) != 3) { y1 = 9999; m1 = 12; d1 = 31; }
-    if (sscanf(b->releaseDate, "%d/%d/%d", &d2, &m2, &y2) != 3) { y2 = 9999; m2 = 12; d2 = 31; }
-
-    if (y1 != y2) return y1 - y2;
-    if (m1 != m2) return m1 - m2;
-    if (d1 != d2) return d1 - d2;
-    return a->id - b->id;
+//controle e busca
+static Game *findById(Game *games, int n, int id) {
+    for (int i = 0; i < n; ++i)
+        if (games[i].id == id) return &games[i];
+    return NULL;
 }
 
-void swap(Game vet[], int i, int j) {
-    Game tmp = vet[i];
-    vet[i] = vet[j];
-    vet[j] = tmp;
-}
-
-int particiona(Game vet[], int inicio, int fim) {
-    Game pivo = vet[fim];
-    int pivo_indice = inicio;
-    for (int i = inicio; i < fim; i++) {
-        if (compGames(&vet[i], &pivo) <= 0) {
-            swap(vet, i, pivo_indice);
-            pivo_indice++;
-        }
-    }
-    swap(vet, pivo_indice, fim);
-    return pivo_indice;
-}
-
-int particiona_random(Game vet[], int inicio, int fim) {
-    int pivo_indice = (rand() % (fim - inicio + 1)) + inicio;
-    swap(vet, pivo_indice, fim);
-    return particiona(vet, inicio, fim);
-}
-
-void quick_sort(Game vet[], int inicio, int fim) {
-    if (inicio < fim) {
-        int pivo_indice = particiona_random(vet, inicio, fim);
-        quick_sort(vet, inicio, pivo_indice - 1);
-        quick_sort(vet, pivo_indice + 1, fim);
-    }
-}
-
-//metodo busca e parada
 static int Parada(const char *line) {
     return (strlen(line) == 3 && strcmp(line, "FIM") == 0);
 }
 
+static void swap(Game *a, Game *b) {
+    Game temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+//selection sort por name
+static void selectionSort(Game arr[], int n) {
+    int i, j, min_idx;
+
+    // subvetor ++
+    for (i = 0; i < n - 1; i++) {
+        // index do menor não ordenado
+        min_idx = i;
+        for (j = i + 1; j < n; j++) {
+            if (strcmp(arr[j].name, arr[min_idx].name) < 0) {
+                min_idx = j;
+            }
+        }
+
+        if (min_idx != i) {
+            swap(&arr[i], &arr[min_idx]);
+        }
+    }
+}
+
 //main
+
 int main(void) {
     const char *csvPath = "/tmp/games.csv";
-    static Game games[MAX_GAMES];
+    static Game games[MAX_GAMES]; 
     int n = readFromCSV(csvPath, games, MAX_GAMES);
-    srand(time(NULL));
 
-    // 1. ORDENA TODOS OS JOGOS
-    quick_sort(games, 0, n - 1);
-
-    int requested_app_ids[MAX_GAMES];
-    int num_requested = 0;
+    // Array aux
+    static Game gamesToPrint[MAX_GAMES]; 
+    int nToPrint = 0;
 
     char input[MAX_STR];
-    int reading_input = 1;
-
-    // 2. LÊ OS IDs de entrada e coleta, sem breaks ou continues internos
-    while (reading_input && fgets(input, sizeof(input), stdin)) {
-        char *nl = strchr(input, '\n'); 
-        if (nl) *nl = '\0';
+    // leitura de IDs e selecionando registros
+    while (fgets(input, sizeof(input), stdin)) {
+        char *nl = strchr(input, '\n'); if (nl) *nl = '\0';
         trim(input);
+        if (Parada(input)) break;
+        if (strlen(input) == 0) continue;
 
-        // parada
-        if (Parada(input)) {
-            reading_input = 0;
-        } else {
-            if (strlen(input) > 0 && num_requested < MAX_GAMES) {
-                int id = 0;
-                //if id existe, adiciona
-                if (sscanf(input, "%d", &id) == 1) {
-                    requested_app_ids[num_requested++] = id;
-                }
+        char *endptr;
+        long idl = strtol(input, &endptr, 10);
+        
+        // valida ID
+        if (*endptr == '\0') { 
+            Game *g = findById(games, n, (int)idl);
+            
+            // Se encontrado, adiciona ao array de jogos a imprimir
+            if (g && nToPrint < MAX_GAMES) {
+                gamesToPrint[nToPrint++] = *g; 
             }
         }
     }
 
-    // print jogos ordenados
-    
-    for (int i = 0; i < n; i++) {
-        int is_requested = 0;
-        int j = 0;
-        // Laço de busca, sem 'break'
-        while (j < num_requested) {
-            if (games[i].id == requested_app_ids[j]) {
-                is_requested = 1;
-                requested_app_ids[j] = -1; // processamento 
-                j = num_requested; //out function
-            } else {
-                j++;
-            }
-        }
+    // OrdenaçãoSelection Sort por name
+    selectionSort(gamesToPrint, nToPrint);
 
-        if (is_requested) {
-            game_print(&games[i]);
-        }
+    //print ordenado
+    for (int i = 0; i < nToPrint; i++) {
+        game_print(&gamesToPrint[i]);
     }
 
     return 0;
