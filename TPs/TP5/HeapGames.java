@@ -374,7 +374,6 @@ public class HeapGames {
         List<Game> gamesList = readFromCSV(csvPath);
 
         List<Game> selectedGames = new ArrayList<>();
-        String line;
 
         // parada
         while (true){
