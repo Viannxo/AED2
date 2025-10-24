@@ -176,7 +176,6 @@ public class Games {
         List<Game> games = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String header = br.readLine(); 
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = splitCSVLine(line);
