@@ -351,7 +351,7 @@ int main(void) {
     char input[MAX_STR];
     int reading_input = 1;
 
-    // 2. LÊ OS IDs de entrada e coleta, sem breaks ou continues internos
+    
     while (reading_input && fgets(input, sizeof(input), stdin)) {
         char *nl = strchr(input, '\n'); 
         if (nl) *nl = '\0';
@@ -363,7 +363,7 @@ int main(void) {
         } else {
             if (strlen(input) > 0 && num_requested < MAX_GAMES) {
                 int id = 0;
-                //if id existe, adiciona
+                // id existe, adiciona
                 if (sscanf(input, "%d", &id) == 1) {
                     requested_app_ids[num_requested++] = id;
                 }
@@ -376,7 +376,6 @@ int main(void) {
     for (int i = 0; i < n; i++) {
         int is_requested = 0;
         int j = 0;
-        // Laço de busca, sem 'break'
         while (j < num_requested) {
             if (games[i].id == requested_app_ids[j]) {
                 is_requested = 1;
