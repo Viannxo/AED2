@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-// err.h removed as it's not available on Windows
 
-// Constantes e Struct Game (Do código original)
+// Constantes
 #define MAX_STR 1024
 #define MAX_LIST 50
 #define MAX_LINE 8192
 #define MAX_GAMES 5000
 #define MAX_FIELDS 64
 
+// Struct Game
 typedef struct
 {
     int id;
@@ -35,11 +35,10 @@ typedef struct
     int numTags;
 } Game;
 
-/* Funções utilitárias e de manipulação de Game (As do código original) */
-// ... (Omitidas para brevidade, mas devem estar presentes no código final)
+// Funções  utilitarias
 
 static char *trim(char *s)
-{ /* ... */
+{
     if (!s)
         return s;
     while (isspace((unsigned char)*s))
@@ -52,7 +51,7 @@ static char *trim(char *s)
     return s;
 }
 static void parse_array_field_into(char *s, char dest[][MAX_STR], int *count, int max_elems)
-{ /* ... */
+{
     *count = 0;
     if (!s || strlen(s) == 0)
         return;
@@ -86,7 +85,7 @@ static void parse_array_field_into(char *s, char dest[][MAX_STR], int *count, in
     }
 }
 static void split_by_comma_into(char *s, char dest[][MAX_STR], int *count, int max_elems)
-{ /* ... */
+{
     *count = 0;
     if (!s || strlen(s) == 0)
         return;
@@ -104,7 +103,7 @@ static void split_by_comma_into(char *s, char dest[][MAX_STR], int *count, int m
     }
 }
 static float parse_price(const char *s)
-{ /* ... */
+{
     if (!s)
         return 0.0f;
     char tmp[MAX_STR];
@@ -127,7 +126,7 @@ static float parse_price(const char *s)
     return strtof(filtered, NULL);
 }
 static int parse_estimated_owners(const char *s)
-{ /* ... */
+{
     if (!s)
         return 0;
     char tmp[MAX_STR];
@@ -139,7 +138,7 @@ static int parse_estimated_owners(const char *s)
     return j ? atoi(tmp) : 0;
 }
 static float parse_user_score(const char *s)
-{ /* ... */
+{
     if (!s)
         return -1.0f;
     char tmp[MAX_STR];
@@ -154,7 +153,7 @@ static float parse_user_score(const char *s)
     return strtof(tmp, NULL);
 }
 static int month_str_to_int(const char *m)
-{ /* ... */
+{
     if (!m)
         return -1;
     const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
@@ -164,7 +163,7 @@ static int month_str_to_int(const char *m)
     return -1;
 }
 static void normalize_release_date(char *src, char out[11])
-{ /* ... */
+{
     if (!src || strlen(src) == 0)
     {
         strcpy(out, "01/01/0001");
@@ -206,7 +205,7 @@ static void normalize_release_date(char *src, char out[11])
         strcpy(out, "01/01/2000");
 }
 static void format_price_str(char *buf, size_t bufsize, float value)
-{ /* ... */
+{
     char tmp[64];
     snprintf(tmp, sizeof(tmp), "%.2f", value);
     size_t L = strlen(tmp);
@@ -218,10 +217,11 @@ static void format_price_str(char *buf, size_t bufsize, float value)
         snprintf(buf, bufsize, "%.2f", value);
 }
 static void print_array_brackets(char arr[][MAX_STR], int n)
-{ /* ... */
+{
     printf("[");
     for (int i = 0; i < n; ++i)
     {
+        // print idiomas
         if (i)
             printf(", ");
         printf("%s", arr[i]);
@@ -229,7 +229,7 @@ static void print_array_brackets(char arr[][MAX_STR], int n)
     printf("]");
 }
 static int splitCSVLine(const char *line, char fields[][MAX_STR], int max_fields)
-{ /* ... */
+{
     int fi = 0, inQuotes = 0, ci = 0;
     char cur[MAX_STR];
     for (int i = 0; line[i] && fi < max_fields; ++i)
@@ -251,7 +251,7 @@ static int splitCSVLine(const char *line, char fields[][MAX_STR], int max_fields
     return fi;
 }
 static void game_init(Game *g)
-{ /* ... */
+{
     memset(g, 0, sizeof(Game));
     g->id = -1;
     strcpy(g->releaseDate, "01/01/0001");
@@ -309,7 +309,7 @@ static void game_set_tags(Game *g, const char *s)
     parse_array_field_into(tmp, g->tags, &g->numTags, MAX_LIST);
 }
 static void game_print(const Game *g)
-{ /* ... */
+{
     char pricebuf[64];
     format_price_str(pricebuf, sizeof(pricebuf), g->price);
     printf("=> %d ## %s ## %s ## %d ## %s ## ", g->id, g->name, g->releaseDate, g->estimatedOwners, pricebuf);
@@ -336,7 +336,8 @@ static void game_print(const Game *g)
     printf(" ##\n");
 }
 static int readFromCSV(const char *filePath, Game *games, int maxGames)
-{ /* ... */
+{
+    //leitura csv
     FILE *f = fopen(filePath, "r");
     if (!f)
         return 0;
@@ -378,19 +379,18 @@ static int readFromCSV(const char *filePath, Game *games, int maxGames)
     return count;
 }
 static Game *findById(Game *games, int n, int id)
-{ /* ... */
+{
     for (int i = 0; i < n; ++i)
         if (games[i].id == id)
             return &games[i];
     return NULL;
 }
 static int Parada(const char *line)
-{ /* ... */
+{
     return (strlen(line) == 3 && strcmp(line, "FIM") == 0);
 }
 
-// NOVO CÓDIGO: PILHA DINÂMICA DE GAME*
-// TIPO CELULA ===================================================================
+// celula
 typedef struct CelulaGame
 {
     Game *elemento;
@@ -410,21 +410,14 @@ CelulaGame *novaCelulaGame(Game *elemento)
     return nova;
 }
 
-// PILHA PROPRIAMENTE DITA =======================================================
+// pilha
 CelulaGame *topo_game; // Sem celula cabeca.
 
-/**
- * Cria uma pilha sem elementos.
- */
 void start_stack()
 {
     topo_game = NULL;
 }
 
-/**
- * Insere elemento na pilha (politica FILO).
- * @param g Game* ponteiro para o Game a inserir.
- */
 void inserir_stack(Game *g)
 {
     CelulaGame *tmp = novaCelulaGame(g);
@@ -433,39 +426,43 @@ void inserir_stack(Game *g)
     tmp = NULL;
 }
 
-if (topo_game == NULL)
-{
-    fprintf(stderr, "Erro: Pilha vazia ao tentar remover!\n");
-    exit(1);
-}
-
-Game *resp = topo_game->elemento;
-CelulaGame *tmp = topo_game;
-topo_game = topo_game->prox;
-tmp->prox = NULL;
-free(tmp);
-tmp = NULL;
-return resp;
-
 /**
- * Mostra os elementos da pilha (do topo para a base).
+ * Remove elemento da pilha (politica FILO).
+ * @return Game* elemento removido, ou NULL se a pilha estiver vazia.
  */
-void mostrar_stack()
+Game *remover_stack()
 {
-    CelulaGame *i;
-    printf("[TOPO]\n");
-    int pos = 0;
-    for (i = topo_game; i != NULL; i = i->prox)
+    if (topo_game == NULL)
     {
-        printf("[%d] ID: %d, Nome: %s\n", pos++, i->elemento->id, i->elemento->name);
-        // Se quiser o print completo: game_print(i->elemento);
+        return NULL;
     }
-    printf("[BASE]\n");
+
+    Game *resp = topo_game->elemento;
+    CelulaGame *tmp = topo_game;
+    topo_game = topo_game->prox;
+    tmp->prox = NULL;
+    free(tmp);
+    tmp = NULL;
+    return resp;
 }
 
-// METODO PRINCIPAL ==============================================================
+void print_stack_base_to_topo(CelulaGame *cell, int *pos_ptr)
+{
+    if (cell != NULL)
+    {
+       //print recursivo
+        print_stack_base_to_topo(cell->prox, pos_ptr);
+
+        // print elemento atual
+        printf("[%d] ", (*pos_ptr)++);
+        game_print(cell->elemento);
+    }
+}
+
+// main
 int main(void)
 {
+    // Caminho típico em ambientes de teste
     const char *csvPath = "/tmp/games.csv";
     static Game games[MAX_GAMES];
     int n = readFromCSV(csvPath, games, MAX_GAMES);
@@ -494,26 +491,28 @@ int main(void)
         Game *g = findById(games, n, (int)idl);
         if (g)
         {
-            inserir_stack(g); // Empilha o ponteiro para o Game encontrado
+            inserir_stack(g); // Empilha o ponteiro para o jogo encontrado
         }
     }
 
-    // SEGUNDA PARTE: LEITURA DOS COMANDOS
     int num_operacoes;
-    if (scanf("%d\n", &num_operacoes) != 1)
-        return 0; // Le o numero de operacoes
+    if (scanf("%d", &num_operacoes) != 1)
+        return 0;
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { /* loop */ }
 
     for (int i = 0; i < num_operacoes; i++)
     {
         if (!fgets(input, sizeof(input), stdin))
-            break;
+            break; // Erro ou EOF
         char *nl = strchr(input, '\n');
         if (nl)
             *nl = '\0';
         trim(input);
 
         if (strncmp(input, "I ", 2) == 0)
-        { // Comando I: Inserir (Empilhar)
+        { // empilha
             char *id_str = input + 2;
             char *endptr;
             long idl = strtol(id_str, &endptr, 10);
@@ -527,21 +526,17 @@ int main(void)
             }
         }
         else if (strcmp(input, "R") == 0)
-        { // Comando R: Remover (Desempilhar)
+        { // remoção
             Game *g_removido = remover_stack();
-            printf("(R) %s\n", g_removido->name);
+            if (g_removido) {
+               printf("(R) %s\n", g_removido->name);
+            }
         }
     }
 
-    // TERCEIRA PARTE: MOSTRAR O RESULTADO FINAL
-    // A exibição é feita chamando o game_print completo para cada elemento
+    // print pilha
     int pos = 0;
-    CelulaGame *i;
-    for (i = topo_game; i != NULL; i = i->prox)
-    {
-        printf("[%d] ", pos++);
-        game_print(i->elemento);
-    }
+    print_stack_base_to_topo(topo_game, &pos);
 
     return 0;
 }
