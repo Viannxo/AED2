@@ -15,3 +15,8 @@ IntroSomatorio/.vscode/c_cpp_properties.json
 TPs/TP1/IntroSomatorio.code-workspace
 .vscode/launch.json
 .vscode/settings.json
+TPs/.vscode/c_cpp_properties.json
+TPs/.vscode/launch.json
+TPs/.vscode/settings.json
+TPs/TP6/pub.in
+TPs/TP6/pub.out
