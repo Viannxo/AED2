@@ -191,7 +191,6 @@ ListaGames* newListaGames() {
         perror("Erro ao alocar ListaGames");
         exit(EXIT_FAILURE);
     }
-    //sentinela
     Game* senti= (Game*)malloc(sizeof(Game)); 
     lista->primeiro = newNo(senti, NULL);
     lista->ultimo = lista->primeiro;
@@ -202,7 +201,7 @@ ListaGames* newListaGames() {
 // Metodo aux
 No* getNo(ListaGames* lista, int pos) {
     No* i = lista->primeiro;
-    for (int j = 0; j <= pos; j++, i = i->prox);
+    for (int j = 0; j < pos; j++, i = i->prox);
     return i;
 }
 
@@ -236,7 +235,7 @@ void inserir(ListaGames* lista, Game* game, int pos) {
     } else if (pos == lista->tamanho) {
         inserirFim(lista, game);
     } else {
-        No* ant = getNo(lista, pos - 1);
+        No* ant = getNo(lista, pos);
         No* novo = newNo(game, ant->prox);
         ant->prox = novo;
         lista->tamanho++;
@@ -266,10 +265,11 @@ Game* removerFim(ListaGames* lista) {
         fprintf(stderr, "Erro ao remover: Lista vazia!\n");
         return NULL;
     }
-    No* ant = getNo(lista, lista->tamanho - 1);
-    Game* resp = ant->prox->elemento;
-    free(ant->prox);
-    lista->ultimo = ant;
+    No* i;
+    for (i = lista->primeiro; i->prox != lista->ultimo; i = i->prox);
+    Game* resp = lista->ultimo->elemento;
+    free(lista->ultimo);
+    lista->ultimo = i;
     lista->ultimo->prox = NULL;
     lista->tamanho--;
     return resp;
@@ -286,7 +286,7 @@ Game* remover(ListaGames* lista, int pos) {
     } else if (pos == lista->tamanho - 1) {
         return removerFim(lista);
     } else {
-        No* ant = getNo(lista, pos - 1);
+        No* ant = getNo(lista, pos);
         No* temp = ant->prox;
         ant->prox = temp->prox;
         Game* resp = temp->elemento;
@@ -298,7 +298,9 @@ Game* remover(ListaGames* lista, int pos) {
 
 // Mostrar a lista
 void mostrar(ListaGames* lista) {
-    for (No* i = lista->primeiro->prox; i != NULL; i = i->prox) {
+    int pos = 0;
+    for (No* i = lista->primeiro->prox; i != NULL; i = i->prox, pos++) {
+        printf("[%d] ", pos);
         printGame(i->elemento);
     }
 }
@@ -348,7 +350,7 @@ Game** readFromCSV(const char* filePath, int* numGames) {
     games = (Game**)malloc(capacity * sizeof(Game*));
 
     char line[1024 * 5];
-    if (fgets(line, sizeof(line), file) == NULL) { fclose(file); free(games); *numGames = 0; return NULL; } // Pula o cabeçalho
+    if (fgets(line, sizeof(line), file) == NULL) { fclose(file); free(games); *numGames = 0; return NULL; }
 
     while (fgets(line, sizeof(line), file)) {
         line[strcspn(line, "\n")] = 0; 
@@ -381,12 +383,10 @@ Game* findById(Game** list, int numGames, int id) {
 
 // main
 int main() {
-    // csv
     int numTodosGames = 0;
     Game** todosGames = readFromCSV("/tmp/games.csv", &numTodosGames);
     ListaGames* lista = newListaGames();
 
-    // Pre-carregamento
     char input[MAX_STR];
     while (true) {
         if (fgets(input, sizeof(input), stdin) == NULL) break;
@@ -398,13 +398,11 @@ int main() {
         if (id > 0) {
             Game* g = findById(todosGames, numTodosGames, id);
             if (g != NULL) {
-                // lista.inserirFim(g);
                 inserirFim(lista, g);
             }
         }
     }
 
-    // Inserção e Remoção
     if (fgets(input, sizeof(input), stdin) != NULL) {
         input[strcspn(input, "\n")] = 0;
         int nComandos = atoi(input);
@@ -428,7 +426,6 @@ int main() {
                 char* comando = partes[0];
                 Game* gameRemovido = NULL;
 
-                // try/catch (ignora erros de posicao/id)
                 if (strcmp(comando, "II") == 0 && numPartes >= 2) {
                     int idII = atoi(partes[1]);
                     Game* gII = findById(todosGames, numTodosGames, idII);
@@ -451,7 +448,6 @@ int main() {
                     gameRemovido = remover(lista, posR);
                 }
 
-                // Saída removidos
                 if (gameRemovido != NULL) {
                     printf("(R) %s\n", gameRemovido->name);
                 }
@@ -459,10 +455,8 @@ int main() {
         }
     }
 
-    // Mostrar a lista remanescente
     mostrar(lista);
 
-    // Limpeza de memória
     No* current = lista->primeiro;
     while (current != NULL) {
         No* next = current->prox;
