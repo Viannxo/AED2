@@ -15,6 +15,22 @@ class Data {
         this.dia = dia; 
     }
 
+    public int getAno(){
+	    return this.ano;
+    }  
+
+
+    public int getMes(){
+	    return this.mes;
+    }  
+
+    public int getDia(){
+	    return this.dia;
+    }  
+
+    public void setAno(int ano){
+	    this.ano=ano;
+    }  
     public static Data parseData(String s) {
 
         Scanner sc = new Scanner(s);
@@ -74,7 +90,30 @@ class TiposCozinha {
         this.types = types; 
     }
 
+   public static TiposCozinha create(String tipos) {
+   	Scanner sc = new Scanner(tipos);
+	sc.useDelimiter(";");
+	int count=0;
+	for(int i=0; i <tipos.length();i++){
+		if(tipos.charAt(i)== ';'){
+			count ++;	
+		}
+	}
+	
+	String[] tps = {};
+	if(sc.hasNext()){
+		tps = new String [count+1];
+
+	
+		for(int i=0; i< count+1; i++){
+			tps[i]=sc.next();
+		}
+	}
+	return new TiposCozinha (tps);
+   }
+
     public String formatar() {
+
         String res = "[";
         for (int i = 0; i < types.length; i++) {
             res += types[i];
@@ -92,14 +131,14 @@ class Restaurante {
     private String nome, cidade;
     private int capacidade;
     private double avaliacao;
-    private String[] tiposCozinha;
+    private TiposCozinha  tiposCozinha;
     private int faixaPreco;
     private Data dataAbertura;
     private Hora abertura, fechamento;
     private boolean aberto;
 
     public Restaurante(int id, String nome, String cidade, int capacidade,double avaliacao,
-                        String[] tiposCozinha, int faixaPreco,Data dataAbertura,
+                       TiposCozinha tiposCozinha, int faixaPreco,Data dataAbertura,
                             Hora abertura, Hora fechamento, boolean aberto) {
         this.id = id;
         this.nome = nome;
@@ -120,28 +159,37 @@ class Restaurante {
         //recebe a linha do scv que vai ser tratada e transformada em um restaurante
         Scanner sc = new Scanner(s);
         sc.useDelimiter(",");
-        
+
+
         int id = sc.nextInt();
         String nome = sc.next();
         String cidade = sc.next();
-        int cap = sc.nextInt();
-        double eval = sc.nextDouble();
-        String[] cozinhas = { sc.next() }; //tratar depois
-        int preco = sc.nextInt();
-        Hora hAbrir = Hora.parseHora(sc.next());
-        Hora hFechar = Hora.parseHora(sc.next());
+        int capacidade = sc.nextInt();
+        double avalia = Double.parseDouble(sc.next());
+        String cozinhas =  sc.next(); //String de tipo TipoCozinha que recebe o objeto
+	TiposCozinha tpc = TiposCozinha.create(cozinhas); // objeto (retorno do metodo static que conta quantos tipos)
+
+        int preco = sc.next().length();
+	String horas = sc.next();
+
+	Scanner scH = new Scanner(horas);
+	scH.useDelimiter("-");
+
+        Hora hAbrir = Hora.parseHora(scH.next());
+        Hora hFechar = Hora.parseHora(scH.next());
         Data dAbrir = Data.parseData(sc.next());
         boolean func = sc.nextBoolean();
         
         sc.close();
-        return new Restaurante(id, nome, cidade, cap, eval, cozinhas, preco, dAbrir, hAbrir, hFechar, func);
+        return new Restaurante(id, nome, cidade, capacidade, avalia, tpc, preco, dAbrir, hAbrir, hFechar, func);
     }
 
     public String formatar() {
-        return String.format("[=> %d ## %s ## %s ## %d ## %.1f ## %s ## %s ## %s-%s ## %s ## %b]",
-            id, nome, cidade, capacidade, avaliacao, 
-            new TiposCozinha(tiposCozinha).formatar(),
-            new Price(faixaPreco).formatar(),
+            Price preco = new Price(faixaPreco);
+            TiposCozinha tcz = tiposCozinha;
+        return String.format(Locale.US, "[%d ## %s ## %s ## %d ## %.1f ## %s ## %s ## %s-%s ## %s ## %b]",
+            id, nome, cidade, capacidade, avaliacao,
+	   tcz.formatar(), preco.formatar(), 
             abertura.formatar(), fechamento.formatar(),
             dataAbertura.formatar(), aberto);
     }
