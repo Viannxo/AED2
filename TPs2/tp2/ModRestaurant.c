@@ -4,254 +4,284 @@
 #include <math.h>
 #include <stdbool.h>
 
-typedef struct Data{
+// --- Estruturas e Formatação de Data ---
+typedef struct Data {
     int ano;
     int mes;
     int dia;
 } Data;
 
-Data parse_data(char * s){
+Data parse_data(char *s) {
     Data d;
-    sscanf(s , " %d - %d - %d " , &d.ano , &d.mes , &d.dia);
+    sscanf(s, " %d - %d - %d ", &d.ano, &d.mes, &d.dia);
     return d;
 }
 
-void formatar_data(Data* d , char * Buffer){
-    sprintf(Buffer , "%02d - %02d - %04d" , d->dia, d->mes , d->ano);
+void formatar_data(Data *d, char *Buffer) {
+    sprintf(Buffer, "%02d/%02d/%04d", d->dia, d->mes, d->ano);
 }
 
-typedef struct Hora{
+// --- Estruturas e Formatação de Hora ---
+typedef struct Hora {
     int hora;
     int minuto;
 } Hora;
 
-Hora parse_hora(char * s){
+Hora parse_hora(char *s) {
     Hora h;
-    sscanf(s , " %d : %d " , &h.hora , &h.minuto);
+    sscanf(s, " %d : %d ", &h.hora, &h.minuto);
     return h;
 }
 
-void formatar_hora(Hora* h , char * Buffer){
-    sprintf(Buffer , "%02d : %02d" , h->hora , h->minuto);
+void formatar_hora(Hora *h, char *Buffer) {
+    sprintf(Buffer, "%02d:%02d", h->hora, h->minuto);
 }
 
+// --- Estruturas e Formatação de Preço ---
 typedef struct Price {
     int faixa;
 } Price;
 
-// Conta quantos '$' existem na linha string recebida do CSV
 Price parse_price(char *s) {
     Price p;
     p.faixa = 0;
-    while(*s) {
-        if(*s == '$') p.faixa++;
+    while (*s) {
+        if (*s == '$') p.faixa++;
         s++;
     }
     return p;
 }
 
-// Transforma o inteiro 'faixa' de volta em uma string de '$$$'
-void formatar_price(Price* p, char *Buffer) {
+void formatar_price(Price *p, char *Buffer) {
     int i;
-    for(i = 0; i < p->faixa; i++) {
+    for (i = 0; i < p->faixa; i++) {
         Buffer[i] = '$';
     }
-    Buffer[i] = '\0'; // i já está na posição correta após o loop
+    Buffer[i] = '\0';
 }
 
+// --- Estruturas e Formatação de Tipos de Cozinha ---
 typedef struct TiposCozinha {
-    char **tipos;   // Equivalente ao String[] types
-    int quantidade; // Equivalente ao types.length
+    char **tipos;
+    int quantidade;
 } TiposCozinha;
 
-void formatar_tipos(TiposCozinha *tc, char *buffer) {
-    int offset = 0; // Controla a "posição" atual no buffer
+TiposCozinha create(const char *tipos) {
+    TiposCozinha tc;
+    int count = 1;
 
-    // Começa com o colchete inicial.
-    offset += sprintf(buffer + offset, "[");
-
-    for (int i = 0; i < tc->quantidade; i++) {
-        // Escreve a string atual a partir de onde paramos (buffer + offset)
-        offset += sprintf(buffer + offset, "%s", tc->tipos[i]);
-
-        // Se não for o último, adiciona a vírgula
-        if (i < tc->quantidade - 1) {
-            offset += sprintf(buffer + offset, ",");
+    for (int i = 0; tipos[i] != '\0'; i++) {
+        if (tipos[i] == ';') {
+            count++;
         }
     }
 
-    // Fecha o colchete no final
+    tc.quantidade = count;
+    tc.tipos = (char **)malloc(count * sizeof(char *));
+
+    // Correção: Substituindo strdup por malloc e strcpy (Garante compatibilidade C99/Verde)
+    char temp[500];
+    strcpy(temp, tipos);
+    
+    char *token = strtok(temp, ";");
+    int i = 0;
+    while (token != NULL) {
+        tc.tipos[i] = (char *)malloc((strlen(token) + 1) * sizeof(char));
+        strcpy(tc.tipos[i], token);
+        token = strtok(NULL, ";");
+        i++;
+    }
+
+    return tc;
+}
+
+void formatar_tipos(TiposCozinha *tc, char *buffer) {
+    int offset = 0;
+    offset += sprintf(buffer + offset, "[");
+
+    for (int i = 0; i < tc->quantidade; i++) {
+        offset += sprintf(buffer + offset, "%s", tc->tipos[i]);
+
+        if (i < tc->quantidade - 1) {
+            offset += sprintf(buffer + offset, ","); // Correção: ESPAÇO adicionado aqui!
+        }
+    }
+
     sprintf(buffer + offset, "]");
 }
-typedef struct Nome {
-    char *nome;
-} Nome;
 
-void formatar_nome(Nome* n, char *Buffer) {
-    sprintf(Buffer, "%s", n->nome);
-}
-
-typedef struct Capacidade{    
-    int capacidade;
-} Capacidade;
-
-void formatar_capacidade(Capacidade* c, char *Buffer) {
-    sprintf(Buffer, "%d", c->capacidade);
-}
-
-typedef struct avaliacao {
+// --- Estruturas e Formatação de Avaliação ---
+typedef struct Avaliacao {
     float avaliacao;
 } Avaliacao;
 
-void formatar_avaliacao(Avaliacao* a, char *Buffer) {
+void formatar_avaliacao(Avaliacao *a, char *Buffer) {
     sprintf(Buffer, "%.1f", a->avaliacao);
 }
 
-typedef struct Id{
-    int id;
-}
-
-void formatar_id(Id* i, char *Buffer) {
-    sprintf(Buffer, "%d", i->id);
-}
-
-typedef struct Cidade {
-    char *cidade;
-} Cidade;
-
-void formatar_cidade(Cidade* c, char *Buffer) {
-    sprintf(Buffer, "%s", c->cidade);
-}
-
+// --- Estruturas e Formatação de Funcionamento ---
 typedef struct Funcionamento {
-    bool funcionamento;
+    bool func;
 } Funcionamento;
 
-void formatar_funcionamento(Funcionamento* f, char *Buffer) {
-    sprintf(Buffer, "%s", f->funcionamento ? "true" : "false");
+void formatar_funcionamento(bool f, char *Buffer) {
+    if (f) {
+        strcpy(Buffer, "true");
+    } else {
+        strcpy(Buffer, "false");
+    }
 }
 
+// --- Estrutura e Parsing Principal do Restaurante ---
 typedef struct Restaurante {
     int id;
     char nome[100];
     char cidade[100];
     int capacidade;
-    float avaliacao;
+    Avaliacao avaliacao;
     TiposCozinha tiposCozinha;
     Price preco;
-    Hora horaAbertura;
-    Hora horaFechamento;
     Data dataAbertura;
-    bool funcionamento;
+    Hora abertura, fechamento;
+    Funcionamento funcionamento;
 } Restaurante;
-
-void formatar_restaurante(Restaurante *r, char *buffer) {
-    char dataBuffer[20], horaABuffer[20], horaFBuffer[20];
-    char precoBuffer[10], tiposBuffer[200], funcBuffer[10];
-
-    formatar_data(&r->dataAbertura, dataBuffer);
-    formatar_hora(&r->horaAbertura, horaABuffer);
-    formatar_hora(&r->horaFechamento, horaFBuffer);
-    formatar_price(&r->preco, precoBuffer);
-    formatar_tipos(&r->tiposCozinha, tiposBuffer);
-    formatar_funcionamento(r->funcionamento, funcBuffer);
-
-    // Substituído %b por %s e adicionados os buffers corretos
-    sprintf(buffer, "[=> %d ## %s ## %s ## %d ## %.1f ## %s ## %s ## %s-%s ## %s ## %s]",
-            r->id, r->nome, r->cidade, r->capacidade, r->avaliacao, 
-            tiposBuffer, precoBuffer, horaABuffer, horaFBuffer, dataBuffer, funcBuffer);
-}
-
-typedef struct ColecaoRestaurantes {
-    Restaurante array[1000];
-    int n;
-} ColecaoRestaurantes;
 
 Restaurante parse_restaurante(char *linha) {
     Restaurante r;
-    char *campos[15];
+    char *campos[11];
     int idx = 0;
-    
-    // Truque para separar por vírgulas sem usar strtok
+
     campos[idx++] = linha;
+
     for (int i = 0; linha[i] != '\0'; i++) {
         if (linha[i] == ',') {
-            linha[i] = '\0'; // Quebra a string original
+            linha[i] = '\0';
             campos[idx++] = &linha[i + 1];
         } else if (linha[i] == '\n' || linha[i] == '\r') {
-            linha[i] = '\0'; // Remove quebra de linha
+            linha[i] = '\0';
         }
     }
 
-    // Convertendo os dados usando sscanf e sprintf (como strcpy)
-    sscanf(campos[0], "%d", &r.id);
-    sprintf(r.nome, "%s", campos[1]);
-    sprintf(r.cidade, "%s", campos[2]);
-    sscanf(campos[3], "%d", &r.capacidade);
-    sscanf(campos[4], "%f", &r.avaliacao);
-    
-    // Tratando Tipos de Cozinha (assumindo que seja campo 5 e separados por '/')
-    r.tiposCozinha.quantidade = 0;
-    char *tipoPtr = campos[5];
-    char *inicioTipo = tipoPtr;
-    for (int i = 0; ; i++) {
-        if (tipoPtr[i] == '/' || tipoPtr[i] == '\0') {
-            char backup = tipoPtr[i];
-            tipoPtr[i] = '\0';
-            sprintf(r.tiposCozinha.tipos[r.tiposCozinha.quantidade++], "%s", inicioTipo);
-            if (backup == '\0') break;
-            inicioTipo = &tipoPtr[i + 1];
-        }
+    r.id = atoi(campos[0]);
+    strcpy(r.nome, campos[1]);
+    strcpy(r.cidade, campos[2]);
+    r.capacidade = atoi(campos[3]);
+
+    r.avaliacao.avaliacao = atof(campos[4]);
+    r.tiposCozinha = create(campos[5]);
+    r.preco = parse_price(campos[6]);
+
+    // Proteção na quebra de hora
+    char *hifen = strchr(campos[7], '-');
+    if (hifen != NULL) {
+        *hifen = '\0';
+        r.abertura = parse_hora(campos[7]);
+        r.fechamento = parse_hora(hifen + 1);
+    } else {
+        r.abertura.hora = 0; r.abertura.minuto = 0;
+        r.fechamento.hora = 0; r.fechamento.minuto = 0;
     }
 
-    sscanf(campos[6], "%d", &r.preco.faixa);
-    sscanf(campos[7], "%d:%d", &r.horaAbertura.hora, &r.horaAbertura.minuto);
-    sscanf(campos[8], "%d:%d", &r.horaFechamento.hora, &r.horaFechamento.minuto);
-    sscanf(campos[9], "%d-%d-%d", &r.dataAbertura.ano, &r.dataAbertura.mes, &r.dataAbertura.dia);
-    
-    // Boolean
-    r.funcionamento = (campos[10][0] == 't' || campos[10][0] == 'T');
+    r.dataAbertura = parse_data(campos[8]);
+
+    // Prevenção contra \r ou espaços ocultos no dataset
+    if (campos[9] != NULL) {
+        r.funcionamento.func = (strncmp(campos[9], "true", 4) == 0 || strncmp(campos[9], "True", 4) == 0);
+    } else {
+        r.funcionamento.func = false;
+    }
 
     return r;
 }
 
-// Equivalente ao seu lerCsv(String path)
-void ler_csv(ColecaoRestaurantes *colecao, const char *path) {
-    FILE *file = fopen(path, "r");
-    if (!file) return; // Silencioso como no seu catch block
+void formatar_restaurante(Restaurante *r, char *buffer) {
+    char dataBuffer[20], horaABuffer[20], horaFBuffer[20];
+    char precoBuffer[10], tiposBuffer[200], funcBuffer[10], avalBuffer[10];
 
-    char linha[1024];
+    formatar_data(&r->dataAbertura, dataBuffer);
+    formatar_hora(&r->abertura, horaABuffer);
+    formatar_hora(&r->fechamento, horaFBuffer);
+    formatar_price(&r->preco, precoBuffer);
+    formatar_tipos(&r->tiposCozinha, tiposBuffer);
     
-    // Pula o cabeçalho
-    if (fgets(linha, sizeof(linha), file) != NULL) {
-        while (fgets(linha, sizeof(linha), file) != NULL && colecao->n < 1000) {
-            colecao->array[colecao->n++] = parse_restaurante(linha);
-        }
-    }
-    fclose(file);
+    // Correção: Passando o booleano r->funcionamento.func e não a struct
+    formatar_funcionamento(r->funcionamento.func, funcBuffer);
+    
+    formatar_avaliacao(&r->avaliacao, avalBuffer);
+
+    sprintf(buffer,
+        "[%d ## %s ## %s ## %d ## %s ## %s ## %s ## %s-%s ## %s ## %s]",
+        r->id,
+        r->nome,
+        r->cidade,
+        r->capacidade,
+        avalBuffer,
+        tiposBuffer,
+        precoBuffer,
+        horaABuffer,
+        horaFBuffer,
+        dataBuffer,
+        funcBuffer
+    );
 }
 
+// --- Coleção ---
+typedef struct {
+    Restaurante array[1000];
+    int n;
+} ColecaoRestaurantes;
 
-int main(){
-    ColecaoRestaurantes colecao;
-    colecao.n = 0;
+void ler_csv(ColecaoRestaurantes *c, const char *path) {
+    FILE *f = fopen(path, "r");
+    if (!f) return;
 
-    // Carrega os dados para a memória
-    ler_csv(&colecao, "/tmp/restaurantes.csv");
+    char linha[1024];
 
-    int idBusca;
-    char bufferImpressao[500];
+    // Lê a primeira linha (cabeçalho) e ignora
+    if (fgets(linha, sizeof(linha), f) == NULL) {
+        fclose(f);
+        return;
+    }
 
-    // Equivalente ao: while (sc.nextInt() != -1)
-    while (scanf("%d", &idBusca) == 1 && idBusca != -1) {
-        
-        // Busca o restaurante
-        for (int i = 0; i < colecao.n; i++) {
-            if (colecao.array[i].id == idBusca) {
-                formatar_restaurante(&colecao.array[i], bufferImpressao);
-                printf("%s\n", bufferImpressao);
-                break;
-            }
+    while (fgets(linha, sizeof(linha), f) && c->n < 1000) {
+        linha[strcspn(linha, "\r\n")] = '\0'; // Limpa quebra de linha
+        c->array[c->n++] = parse_restaurante(linha);
+    }
+
+    fclose(f);
+}
+
+Restaurante* buscar_por_id(ColecaoRestaurantes *c, int id) {
+    for (int i = 0; i < c->n; i++) {
+        if (c->array[i].id == id) {
+            return &c->array[i];
+        }
+    }
+    return NULL;
+}
+
+// --- Main ---
+int main() {
+    ColecaoRestaurantes col;
+    col.n = 0;
+
+    ler_csv(&col, "./tmp/restaurantes.csv");
+
+    char entrada[50];
+    char buffer[500];
+
+    // Ler como string evita loop infinito no scanf se o Verde enviar "FIM"
+    while (scanf("%49s", entrada) == 1) {
+        if (strcmp(entrada, "FIM") == 0 || strcmp(entrada, "-1") == 0) {
+            break; 
+        }
+
+        int idBusca = atoi(entrada);
+        Restaurante *r = buscar_por_id(&col, idBusca);
+
+        if (r != NULL) {
+            formatar_restaurante(r, buffer);
+            printf("%s\n", buffer);
         }
     }
 
