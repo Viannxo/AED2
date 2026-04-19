@@ -3,75 +3,92 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include <time.h>
 
 // --- Estruturas e Formatação de Data ---
-typedef struct Data {
+typedef struct Data
+{
     int ano;
     int mes;
     int dia;
 } Data;
 
-Data parse_data(char *s) {
+Data parse_data(char *s)
+{
     Data d;
     sscanf(s, " %d - %d - %d ", &d.ano, &d.mes, &d.dia);
     return d;
 }
 
-void formatar_data(Data *d, char *Buffer) {
+void formatar_data(Data *d, char *Buffer)
+{
     sprintf(Buffer, "%02d/%02d/%04d", d->dia, d->mes, d->ano);
 }
 
 // --- Estruturas e Formatação de Hora ---
-typedef struct Hora {
+typedef struct Hora
+{
     int hora;
     int minuto;
 } Hora;
 
-Hora parse_hora(char *s) {
+Hora parse_hora(char *s)
+{
     Hora h;
     sscanf(s, " %d : %d ", &h.hora, &h.minuto);
     return h;
 }
 
-void formatar_hora(Hora *h, char *Buffer) {
+void formatar_hora(Hora *h, char *Buffer)
+{
     sprintf(Buffer, "%02d:%02d", h->hora, h->minuto);
 }
 
 // --- Estruturas e Formatação de Preço ---
-typedef struct Price {
+typedef struct Price
+{
     int faixa;
 } Price;
 
-Price parse_price(char *s) {
+Price parse_price(char *s)
+{
     Price p;
     p.faixa = 0;
-    while (*s) {
-        if (*s == '$') p.faixa++;
+    while (*s)
+    {
+        if (*s == '$')
+            p.faixa++;
         s++;
     }
     return p;
 }
 
-void formatar_price(Price *p, char *Buffer) {
+void formatar_price(Price *p, char *Buffer)
+{
     int i;
-    for (i = 0; i < p->faixa; i++) {
+    for (i = 0; i < p->faixa; i++)
+    {
         Buffer[i] = '$';
     }
     Buffer[i] = '\0';
 }
 
 // --- Estruturas e Formatação de Tipos de Cozinha ---
-typedef struct TiposCozinha {
+typedef struct TiposCozinha
+{
     char **tipos;
     int quantidade;
 } TiposCozinha;
 
-TiposCozinha create(const char *tipos) {
+TiposCozinha create(const char *tipos)
+{
     TiposCozinha tc;
     int count = 1;
 
-    for (int i = 0; tipos[i] != '\0'; i++) {
-        if (tipos[i] == ';') {
+    for (int i = 0; tipos[i] != '\0'; i++)
+    {
+        if (tipos[i] == ';')
+        {
             count++;
         }
     }
@@ -82,10 +99,11 @@ TiposCozinha create(const char *tipos) {
     // Correção: Substituindo strdup por malloc e strcpy (Garante compatibilidade C99/Verde)
     char temp[500];
     strcpy(temp, tipos);
-    
+
     char *token = strtok(temp, ";");
     int i = 0;
-    while (token != NULL) {
+    while (token != NULL)
+    {
         tc.tipos[i] = (char *)malloc((strlen(token) + 1) * sizeof(char));
         strcpy(tc.tipos[i], token);
         token = strtok(NULL, ";");
@@ -95,14 +113,17 @@ TiposCozinha create(const char *tipos) {
     return tc;
 }
 
-void formatar_tipos(TiposCozinha *tc, char *buffer) {
+void formatar_tipos(TiposCozinha *tc, char *buffer)
+{
     int offset = 0;
     offset += sprintf(buffer + offset, "[");
 
-    for (int i = 0; i < tc->quantidade; i++) {
+    for (int i = 0; i < tc->quantidade; i++)
+    {
         offset += sprintf(buffer + offset, "%s", tc->tipos[i]);
 
-        if (i < tc->quantidade - 1) {
+        if (i < tc->quantidade - 1)
+        {
             offset += sprintf(buffer + offset, ","); // Correção: ESPAÇO adicionado aqui!
         }
     }
@@ -111,29 +132,37 @@ void formatar_tipos(TiposCozinha *tc, char *buffer) {
 }
 
 // --- Estruturas e Formatação de Avaliação ---
-typedef struct Avaliacao {
+typedef struct Avaliacao
+{
     float avaliacao;
 } Avaliacao;
 
-void formatar_avaliacao(Avaliacao *a, char *Buffer) {
+void formatar_avaliacao(Avaliacao *a, char *Buffer)
+{
     sprintf(Buffer, "%.1f", a->avaliacao);
 }
 
 // --- Estruturas e Formatação de Funcionamento ---
-typedef struct Funcionamento {
+typedef struct Funcionamento
+{
     bool func;
 } Funcionamento;
 
-void formatar_funcionamento(bool f, char *Buffer) {
-    if (f) {
+void formatar_funcionamento(bool f, char *Buffer)
+{
+    if (f)
+    {
         strcpy(Buffer, "true");
-    } else {
+    }
+    else
+    {
         strcpy(Buffer, "false");
     }
 }
 
 // --- Estrutura e Parsing Principal do Restaurante ---
-typedef struct Restaurante {
+typedef struct Restaurante
+{
     int id;
     char nome[100];
     char cidade[100];
@@ -146,18 +175,23 @@ typedef struct Restaurante {
     Funcionamento funcionamento;
 } Restaurante;
 
-Restaurante parse_restaurante(char *linha) {
+Restaurante parse_restaurante(char *linha)
+{
     Restaurante r;
     char *campos[11];
     int idx = 0;
 
     campos[idx++] = linha;
 
-    for (int i = 0; linha[i] != '\0'; i++) {
-        if (linha[i] == ',') {
+    for (int i = 0; linha[i] != '\0'; i++)
+    {
+        if (linha[i] == ',')
+        {
             linha[i] = '\0';
             campos[idx++] = &linha[i + 1];
-        } else if (linha[i] == '\n' || linha[i] == '\r') {
+        }
+        else if (linha[i] == '\n' || linha[i] == '\r')
+        {
             linha[i] = '\0';
         }
     }
@@ -173,28 +207,37 @@ Restaurante parse_restaurante(char *linha) {
 
     // Proteção na quebra de hora
     char *hifen = strchr(campos[7], '-');
-    if (hifen != NULL) {
+    if (hifen != NULL)
+    {
         *hifen = '\0';
         r.abertura = parse_hora(campos[7]);
         r.fechamento = parse_hora(hifen + 1);
-    } else {
-        r.abertura.hora = 0; r.abertura.minuto = 0;
-        r.fechamento.hora = 0; r.fechamento.minuto = 0;
+    }
+    else
+    {
+        r.abertura.hora = 0;
+        r.abertura.minuto = 0;
+        r.fechamento.hora = 0;
+        r.fechamento.minuto = 0;
     }
 
     r.dataAbertura = parse_data(campos[8]);
 
     // Prevenção contra \r ou espaços ocultos no dataset
-    if (campos[9] != NULL) {
+    if (campos[9] != NULL)
+    {
         r.funcionamento.func = (strncmp(campos[9], "true", 4) == 0 || strncmp(campos[9], "True", 4) == 0);
-    } else {
+    }
+    else
+    {
         r.funcionamento.func = false;
     }
 
     return r;
 }
 
-void formatar_restaurante(Restaurante *r, char *buffer) {
+void formatar_restaurante(Restaurante *r, char *buffer)
+{
     char dataBuffer[20], horaABuffer[20], horaFBuffer[20];
     char precoBuffer[10], tiposBuffer[200], funcBuffer[10], avalBuffer[10];
 
@@ -203,47 +246,51 @@ void formatar_restaurante(Restaurante *r, char *buffer) {
     formatar_hora(&r->fechamento, horaFBuffer);
     formatar_price(&r->preco, precoBuffer);
     formatar_tipos(&r->tiposCozinha, tiposBuffer);
-    
+
     // Correção: Passando o booleano r->funcionamento.func e não a struct
     formatar_funcionamento(r->funcionamento.func, funcBuffer);
-    
+
     formatar_avaliacao(&r->avaliacao, avalBuffer);
 
     sprintf(buffer,
-        "[%d ## %s ## %s ## %d ## %s ## %s ## %s ## %s-%s ## %s ## %s]",
-        r->id,
-        r->nome,
-        r->cidade,
-        r->capacidade,
-        avalBuffer,
-        tiposBuffer,
-        precoBuffer,
-        horaABuffer,
-        horaFBuffer,
-        dataBuffer,
-        funcBuffer
-    );
+            "[%d ## %s ## %s ## %d ## %s ## %s ## %s ## %s-%s ## %s ## %s]",
+            r->id,
+            r->nome,
+            r->cidade,
+            r->capacidade,
+            avalBuffer,
+            tiposBuffer,
+            precoBuffer,
+            horaABuffer,
+            horaFBuffer,
+            dataBuffer,
+            funcBuffer);
 }
 
 // --- Coleção ---
-typedef struct {
+typedef struct
+{
     Restaurante array[1000];
     int n;
 } ColecaoRestaurantes;
 
-void ler_csv(ColecaoRestaurantes *c, const char *path) {
+void ler_csv(ColecaoRestaurantes *c, const char *path)
+{
     FILE *f = fopen(path, "r");
-    if (!f) return;
+    if (!f)
+        return;
 
     char linha[1024];
 
     // Lê a primeira linha (cabeçalho) e ignora
-    if (fgets(linha, sizeof(linha), f) == NULL) {
+    if (fgets(linha, sizeof(linha), f) == NULL)
+    {
         fclose(f);
         return;
     }
 
-    while (fgets(linha, sizeof(linha), f) && c->n < 1000) {
+    while (fgets(linha, sizeof(linha), f) && c->n < 1000)
+    {
         linha[strcspn(linha, "\r\n")] = '\0'; // Limpa quebra de linha
         c->array[c->n++] = parse_restaurante(linha);
     }
@@ -251,37 +298,47 @@ void ler_csv(ColecaoRestaurantes *c, const char *path) {
     fclose(f);
 }
 
-Restaurante* buscar_por_id(ColecaoRestaurantes *c, int id) {
-    for (int i = 0; i < c->n; i++) {
-        if (c->array[i].id == id) {
+Restaurante *buscar_por_id(ColecaoRestaurantes *c, int id)
+{
+    for (int i = 0; i < c->n; i++)
+    {
+        if (c->array[i].id == id)
+        {
             return &c->array[i];
         }
     }
     return NULL;
 }
 
+void ordena(ColecaoRestaurantes *c, double *comparacoes, double *movimentacoes)
+{
+    *comparacoes = 0;
+    *movimentacoes = 0;
 
-    void ordena(ColecaoRestaurantes *c) {
-        for (int i = 0; i < c->n - 1; i++) {
-            int min_idx = i;
-            for (int j = i + 1; j < c->n; j++) {
-            // Compara os nomes usando strcmp
-            // Se o nome em j for "menor" que o nome no menor_indice
-                if (strcmp(c->array[j].nome, c->array[min_idx].nome) < 0) {
-                    min_idx = j;
-                }
+    for (int i = 0; i < c->n - 1; i++)
+    {
+        int min_idx = i;
+        for (int j = i + 1; j < c->n; j++)
+        {
+            (*comparacoes)++;
+            if (strcmp(c->array[j].cidade, c->array[min_idx].cidade) < 0)
+            {
+                min_idx = j;
             }
-            // Troca
+        }
+        if (min_idx != i)
+        {
             Restaurante temp = c->array[i];
             c->array[i] = c->array[min_idx];
             c->array[min_idx] = temp;
+            (*movimentacoes) += 3; // temp = a, a = b, b = temp
         }
     }
-
-
+}
 
 // --- Main ---
-int main() {
+int main()
+{
     ColecaoRestaurantes col;
     col.n = 0;
 
@@ -293,32 +350,46 @@ int main() {
     char entrada[50];
     char buffer[500];
 
-    // --- FASE 1: COLETA ---
-    while (fgets(entrada, sizeof(entrada), stdin) != NULL) {
+    
+    while (fgets(entrada, sizeof(entrada), stdin) != NULL)
+    {
         entrada[strcspn(entrada, "\r\n")] = '\0';
 
-        if (strcmp(entrada, "FIM") == 0 || strcmp(entrada, "-1") == 0) {
-            break; 
+        if (strcmp(entrada, "FIM") == 0 || strcmp(entrada, "-1") == 0)
+        {
+            break;
         }
 
         int idBusca = atoi(entrada);
         Restaurante *r = buscar_por_id(&col, idBusca);
 
-        if (r != NULL) {
+        if (r != NULL)
+        {
             // armazena a col2, sem imprimir nada ainda
-            col2.array[col2.n] = *r; 
+            col2.array[col2.n] = *r;
             col2.n++;
         }
     }
 
-    // Ordenar pelo nome
-    ordena(&col2);
+    double comparacoes, movimentacoes;
+    clock_t inicio = clock();
+    ordena(&col2, &comparacoes, &movimentacoes);
+    clock_t fim = clock();
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC * 1000.0; // em milissegundos
 
-  
-    // Agora percorremos a coleção já organizada
-    for (int i = 0; i < col2.n; i++) {
+    // printa a col2 ordenada
+    for (int i = 0; i < col2.n; i++)
+    {
         formatar_restaurante(&col2.array[i], buffer);
         printf("%s\n", buffer);
+    }
+
+    //log
+    FILE *log = fopen("844387_selectionSort.txt", "w");
+    if (log != NULL)
+    {
+        fprintf(log, "844387\t%.0f\t%.0f\t%.2f", comparacoes, movimentacoes, tempo);
+        fclose(log);
     }
 
     return 0;
