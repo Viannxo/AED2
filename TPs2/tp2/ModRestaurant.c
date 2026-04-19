@@ -271,7 +271,8 @@ int main() {
     char buffer[500];
 
     // Ler como string evita loop infinito no scanf se o Verde enviar "FIM"
-    while (scanf("%49s", entrada) == 1) {
+    while (scanf("%49s", entrada) == 1) { //while (fgets(entrada, sizeof(entrada), stdin) != NULL)
+        // entrada[strcspn(entrada, "\n")] = '\0';
         if (strcmp(entrada, "FIM") == 0 || strcmp(entrada, "-1") == 0) {
             break; 
         }
