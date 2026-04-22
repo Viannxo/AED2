@@ -160,6 +160,7 @@ class Restaurante {
         boolean func = sc.nextBoolean();
 
         sc.close();
+        scH.close();
         return new Restaurante(id, nome, cidade, capacidade, avalia, tpc, preco, dAbrir, hAbrir, hFechar, func);
     }
 
@@ -247,7 +248,7 @@ public class OrdInsert {
     public static void main(String[] args) throws IOException {
         Scanner in = new Scanner(System.in);
         ColecaoRestaurantes colecao = new ColecaoRestaurantes();
-        colecao.lerCsv("./tmp/restaurantes.csv");
+        colecao.lerCsv("/tmp/restaurantes.csv");
 
         ColecaoRestaurantes selecionados = new ColecaoRestaurantes();
 

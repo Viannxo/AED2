@@ -265,7 +265,7 @@ int main() {
     ColecaoRestaurantes col;
     col.n = 0;
 
-    ler_csv(&col, "./tmp/restaurantes.csv");
+    ler_csv(&col, "/tmp/restaurantes.csv");
 
     char entrada[50];
     char buffer[500];
