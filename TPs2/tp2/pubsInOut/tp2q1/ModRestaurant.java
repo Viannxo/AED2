@@ -197,7 +197,7 @@ class Restaurante {
 
 // Coleção e Leitura de CSV
 
-class ColecaoRestaurantes {
+class ColecaoRestaurantes{
     private Restaurante[] cRest;
     private int n;
 
