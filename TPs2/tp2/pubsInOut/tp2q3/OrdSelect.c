@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-// --- Utilitários manuais (sem strcpy, strlen, strtok, strchr, strcspn, strncmp) ---
+// --- Utilitários manuais  ---
 
 void my_trim(char *s)
 {
@@ -66,7 +66,7 @@ void formatar_price(Price *p, char *buf)
     buf[i] = '\0';
 }
 
-// --- TiposCozinha (sem malloc/strtok/strcpy) ---
+// --- TiposCozinha  ---
 typedef struct TiposCozinha { char raw[200]; int quantidade; } TiposCozinha;
 
 TiposCozinha create(const char *tipos)
@@ -152,7 +152,7 @@ Restaurante parse_restaurante(char *linha)
     r.tiposCozinha = create(campos[5]);
     r.preco = parse_price(campos[6]);
 
-    // Substitui strchr: acha '-' no horário manualmente
+    //acha '-' no horário manualmente
     int hifen = my_strchr(campos[7], '-');
     if (hifen >= 0)
     {

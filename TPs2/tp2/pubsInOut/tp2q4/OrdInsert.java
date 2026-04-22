@@ -267,12 +267,11 @@ public class OrdInsert {
         long fim = System.nanoTime();
         double tempo = (fim - inicio) / 1_000_000.0; // milissegundos
 
-        // --- FASE 3: SAÍDA ---
         for (int i = 0; i < selecionados.getN(); i++) {
             System.out.println(selecionados.get(i).formatar());
         }
 
-        // --- FASE 4: LOG ---
+    
         PrintWriter log = new PrintWriter(new FileWriter("844387_insertionSort.txt"));
         log.printf(Locale.US, "844387\t%.0f\t%.0f\t%.2f", comparacoes, movimentacoes, tempo);
         log.close();
