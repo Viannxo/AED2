@@ -4,7 +4,9 @@
 #include <time.h>
 #include <string.h>
 
+
 // --- Utilitários manuais ---
+
 
 void my_trim(char *s)
 {
@@ -18,6 +20,8 @@ int my_strchr(const char *s, char c)
         if (s[i] == c) return i;
     return -1;
 }
+
+
 
 // --- Data ---
 typedef struct Data { int ano, mes, dia; } Data;
@@ -34,6 +38,8 @@ void formatar_data(Data *d, char *buf)
     sprintf(buf, "%02d/%02d/%04d", d->dia, d->mes, d->ano);
 }
 
+
+
 // --- Hora ---
 typedef struct Hora { int hora, minuto; } Hora;
 
@@ -48,6 +54,8 @@ void formatar_hora(Hora *h, char *buf)
 {
     sprintf(buf, "%02d:%02d", h->hora, h->minuto);
 }
+
+
 
 // --- Preco ---
 typedef struct Price { int faixa; } Price;
@@ -66,7 +74,11 @@ void formatar_price(Price *p, char *buf)
     buf[i] = '\0';
 }
 
+
+
+
 // --- TiposCozinha ---
+
 typedef struct TiposCozinha { char raw[200]; int quantidade; } TiposCozinha;
 
 TiposCozinha create(const char *tipos)
@@ -94,6 +106,9 @@ void formatar_tipos(TiposCozinha *tc, char *buf)
     buf[bi]   = '\0';
 }
 
+
+
+
 // --- Avaliacao ---
 typedef struct Avaliacao { float avaliacao; } Avaliacao;
 
@@ -102,6 +117,8 @@ void formatar_avaliacao(Avaliacao *a, char *buf)
     sprintf(buf, "%.1f", a->avaliacao);
 }
 
+
+
 // --- Funcionamento ---
 typedef struct Funcionamento { bool func; } Funcionamento;
 
@@ -109,6 +126,9 @@ void formatar_funcionamento(bool f, char *buf)
 {
     sprintf(buf, f ? "true" : "false");
 }
+
+
+
 
 // --- Restaurante ---
 typedef struct Restaurante
@@ -219,55 +239,77 @@ Restaurante *buscar_por_id(ColecaoRestaurantes *c, int id)
 }
 
 
-// CountingSort - capacidade (inteiro) — crescente
+// QuickSort — chave primária: nome (alfabético crescente)
 
 
-void ordena(ColecaoRestaurantes *c, double *comparacoes, double *movimentacoes)
+double comparacoes_qs   = 0;
+double movimentacoes_qs = 0;
+
+void swap(Restaurante *a, Restaurante *b)
 {
-    *comparacoes  = 0;
-    *movimentacoes = 0;
+    Restaurante temp = *a;
+    *a = *b;
+    *b = temp;
+    movimentacoes_qs += 3;
+}
 
-    if (c->n <= 1) return;
+int particionar(Restaurante *arr, int low, int high)
+{
+    Restaurante *pivot = &arr[high];
+    int i = low - 1;
 
-    //min e max da capacidade
-    int min_cap = c->array[0].capacidade;
-    int max_cap = c->array[0].capacidade;
-    for (int i = 1; i < c->n; i++)
+    for (int j = low; j < high; j++)
     {
-        (*comparacoes)++;
-        if (c->array[i].capacidade < min_cap) min_cap = c->array[i].capacidade;
-        (*comparacoes)++;
-        if (c->array[i].capacidade > max_cap) max_cap = c->array[i].capacidade;
+        comparacoes_qs++;
+        if (strcmp(arr[j].nome, pivot->nome) <= 0)
+        {
+            i++;
+            if (i != j) swap(&arr[i], &arr[j]);
+        }
     }
 
-    int range = max_cap - min_cap + 1;
+    if (i + 1 != high) swap(&arr[i + 1], &arr[high]);
 
-    //Vetor de contagem
-    int count[1001] = {0};  // capacidade max possivel = 1000
-    for (int i = 0; i < c->n; i++)
-        count[c->array[i].capacidade - min_cap]++;
+    return i + 1;
+}
 
-    //posição final de cada bucket
-    for (int i = 1; i < range; i++)
-        count[i] += count[i - 1];
-
-    // saída percorre de trás pra frente
-    Restaurante output[1000];
-    for (int i = c->n - 1; i >= 0; i--)
+void quickSort(Restaurante *arr, int low, int high)
+{
+    if (low < high)
     {
-        int bucket = c->array[i].capacidade - min_cap;
-        int pos    = count[bucket] - 1;
-        output[pos] = c->array[i];
-        count[bucket]--;
-        (*movimentacoes)++;  // cada elemento movido = 1 movimentação
+        int pi = particionar(arr, low, high);
+        quickSort(arr, low,    pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+void ordena(ColecaoRestaurantes *c)
+{
+    comparacoes_qs   = 0;
+    movimentacoes_qs = 0;
+    if (c->n > 1)
+        quickSort(c->array, 0, c->n - 1);
+}
+
+
+// Pesquisa Binária — busca por nome exato retorna  se encontrado, -1 caso contrário
+
+
+int pesquisa_binaria(ColecaoRestaurantes *c, const char *nome)
+{
+    int lo = 0, hi = c->n - 1;
+
+    while (lo <= hi)
+    {
+        int mid = lo + (hi - lo) / 2;
+        int cmp = strcmp(c->array[mid].nome, nome);
+
+        if (cmp == 0)  return mid;   // encontrado
+        if (cmp < 0)   lo = mid + 1; // busca na metade direita
+        else           hi = mid - 1; // busca na metade esquerda
     }
 
-    //Copiar resultado de volta
-    for (int i = 0; i < c->n; i++)
-    {
-        c->array[i] = output[i];
-        (*movimentacoes)++;  // cópia de volta
-    }
+    return -1; // não encontrado
 }
 
 // --- Main ---
@@ -281,13 +323,14 @@ int main()
     char entrada[50];
     char buffer[500];
 
+    // Fase 1: leitura de IDs até -1
     while (fgets(entrada, sizeof(entrada), stdin) != NULL)
     {
         my_trim(entrada);
 
         char word[50];
         sscanf(entrada, "%49s", word);
-        if (strcmp(word, "FIM") == 0 || strcmp(word, "-1") == 0) break;
+        if (strcmp(word, "-1") == 0) break;
 
         int idBusca;
         sscanf(entrada, "%d", &idBusca);
@@ -295,23 +338,33 @@ int main()
         if (r != NULL) { col2.array[col2.n] = *r; col2.n++; }
     }
 
-    double comparacoes, movimentacoes;
+    // Ordenar col2 por nome via QuickSort
     clock_t inicio = clock();
-    ordena(&col2, &comparacoes, &movimentacoes);
+    ordena(&col2);
     clock_t fim = clock();
     double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC * 1000.0;
 
-    for (int i = 0; i < col2.n; i++)
+    // Pesquisa binária por nome até FIM
+    while (fgets(entrada, sizeof(entrada), stdin) != NULL)
     {
-        formatar_restaurante(&col2.array[i], buffer);
-        printf("%s\n", buffer);
+        my_trim(entrada);
+
+        if (strcmp(entrada, "FIM") == 0) break;
+
+        // Pesquisa binária pelo nome digitado
+        int idx = pesquisa_binaria(&col2, entrada);
+        if (idx >= 0)
+            printf("SIM\n");
+        else
+            printf("NAO\n");
     }
 
-    FILE *log = fopen("844387_countingsort.txt", "w");
+    // Log
+    FILE *log = fopen("844387_binaria.txt", "w");
     if (log != NULL)
     {
         fprintf(log, "844387\t%.0f\t%.0f\t%.2f",
-                comparacoes, movimentacoes, tempo);
+                comparacoes_qs, movimentacoes_qs, tempo);
         fclose(log);
     }
 
