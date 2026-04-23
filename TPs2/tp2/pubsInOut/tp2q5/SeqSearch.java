@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-// --- Classes Auxiliares ---
+// --- Data ---
 
 class Data {
     private int ano, mes, dia;
@@ -27,6 +27,8 @@ class Data {
     }
 }
 
+// --- Hora ---
+
 class Hora {
     private int hora, minuto;
 
@@ -49,6 +51,8 @@ class Hora {
     }
 }
 
+// --- Price ---
+
 class Price {
     private int faixa;
 
@@ -64,6 +68,8 @@ class Price {
     }
 }
 
+// --- TiposCozinha ---
+
 class TiposCozinha {
     private String[] types;
 
@@ -72,18 +78,20 @@ class TiposCozinha {
     }
 
     public static TiposCozinha create(String tipos) {
+        // contar tipos com charAt, sem .length()
+        int count = 1;
+        int i = 0;
+        while (true) {
+            try { tipos.charAt(i); } catch (StringIndexOutOfBoundsException e) { break; }
+            if (tipos.charAt(i) == ';') count++;
+            i++;
+        }
+
+        String[] tps = new String[count];
         Scanner sc = new Scanner(tipos);
         sc.useDelimiter(";");
-        int count = 0;
-        for (int i = 0; i < tipos.length(); i++)
-            if (tipos.charAt(i) == ';') count++;
-
-        String[] tps = {};
-        if (sc.hasNext()) {
-            tps = new String[count + 1];
-            for (int i = 0; i < count + 1; i++)
-                tps[i] = sc.next();
-        }
+        for (int j = 0; j < count; j++)
+            tps[j] = sc.next();
         sc.close();
         return new TiposCozinha(tps);
     }
@@ -131,28 +139,82 @@ class Restaurante {
     public String getNome() { return nome; }
     public String getCidade() { return cidade; }
 
-    public static Restaurante parseRestaurante(String s) {
-        Scanner sc = new Scanner(s);
+    // Converte String para double sem Double.parseDouble
+    private static double parseDouble(String s) {
+        double result = 0;
+        double decimal = -1;
+        boolean negative = false;
+        int i = 0;
+
+        if (s.charAt(0) == '-') { negative = true; i++; }
+
+        while (true) {
+            try { s.charAt(i); } catch (StringIndexOutOfBoundsException e) { break; }
+            char c = s.charAt(i);
+            if (c == '.' || c == ',') {
+                decimal = 1;
+            } else if (c >= '0' && c <= '9') {
+                if (decimal < 0) {
+                    result = result * 10 + (c - '0');
+                } else {
+                    decimal *= 10;
+                    result += (c - '0') / decimal;
+                }
+            }
+            i++;
+        }
+        return negative ? -result : result;
+    }
+
+    // Remove \r, \n e espaços do fim sem .trim()
+    static String myTrim(String s) {
+        int len = 0;
+        while (true) {
+            try { s.charAt(len); } catch (StringIndexOutOfBoundsException e) { break; }
+            len++;
+        }
+        while (len > 0) {
+            char c = s.charAt(len - 1);
+            if (c == '\r' || c == '\n' || c == ' ') len--;
+            else break;
+        }
+        return s.substring(0, len);
+    }
+
+    public static Restaurante parseRestaurante(String linha) {
+        linha = myTrim(linha);
+        Scanner sc = new Scanner(linha);
         sc.useDelimiter(",");
 
-        int id = sc.nextInt();
-        String nome = sc.next();
-        String cidade = sc.next();
+        int id         = sc.nextInt();
+        String nome    = sc.next();
+        String cidade  = sc.next();
         int capacidade = sc.nextInt();
-        double avalia = Double.parseDouble(sc.next());
+        double avalia  = parseDouble(sc.next());
         String cozinhas = sc.next();
         TiposCozinha tpc = TiposCozinha.create(cozinhas);
-        int preco = sc.next().length();
-        String horas = sc.next();
 
+        // contar '$' sem .length()
+        String precoStr = sc.next();
+        int preco = 0;
+        while (true) {
+            try { precoStr.charAt(preco); } catch (StringIndexOutOfBoundsException e) { break; }
+            if (precoStr.charAt(preco) == '$') preco++;
+            else break;
+        }
+
+        String horas = sc.next();
         Scanner scH = new Scanner(horas);
         scH.useDelimiter("-");
-        Hora hAbrir = Hora.parseHora(scH.next());
+        Hora hAbrir  = Hora.parseHora(scH.next());
         Hora hFechar = Hora.parseHora(scH.next());
         scH.close();
 
         Data dAbrir = Data.parseData(sc.next());
-        boolean func = sc.nextBoolean();
+
+        // ler booleano sem nextBoolean()
+        String funcStr = myTrim(sc.next());
+        boolean func = (funcStr.compareTo("true") == 0 || funcStr.compareTo("True") == 0);
         sc.close();
 
         return new Restaurante(id, nome, cidade, capacidade, avalia, tpc, preco, dAbrir, hAbrir, hFechar, func);
@@ -169,14 +231,13 @@ class Restaurante {
     }
 }
 
-// --- Coleção ---
+// --- ColecaoRestaurantes ---
 
 class ColecaoRestaurantes {
     private Restaurante[] cRest;
     private int n;
 
-    // Contadores para o log
-    public long comparacoes = 0;
+    public long comparacoes   = 0;
     public long movimentacoes = 0;
 
     public ColecaoRestaurantes() {
@@ -228,14 +289,14 @@ class ColecaoRestaurantes {
             }
 
             cRest[j + 1] = chave;
-            movimentacoes++; // escrita da chave na posição final
+            movimentacoes++; // escrita da chave
         }
     }
 
     // Pesquisa Sequencial — busca por nome exato
     public int pesquisaSequencial(String nome) {
         for (int i = 0; i < n; i++)
-            if (cRest[i].getNome().equals(nome)) return i;
+            if (cRest[i].getNome().compareTo(nome) == 0) return i;
         return -1;
     }
 }
@@ -252,7 +313,7 @@ public class SeqSearch {
 
         // Fase 1: leitura de IDs até -1
         int idBusca = in.nextInt();
-        in.nextLine(); // consome newline
+        in.nextLine();
         while (idBusca != -1) {
             Restaurante r = colecao.buscarPorId(idBusca);
             if (r != null) colecao2.adicionar(r);
@@ -260,7 +321,7 @@ public class SeqSearch {
             in.nextLine();
         }
 
-        // Ordenar por cidade via Insertion Sort
+        // Ordenar por nome via Insertion Sort
         long inicio = System.currentTimeMillis();
         colecao2.insertionSort();
         long fim = System.currentTimeMillis();
@@ -268,8 +329,8 @@ public class SeqSearch {
 
         // Fase 2: pesquisa sequencial por nome até FIM
         while (in.hasNextLine()) {
-            String entrada = in.nextLine().trim();
-            if (entrada.equals("FIM")) break;
+            String entrada = Restaurante.myTrim(in.nextLine());
+            if (entrada.compareTo("FIM") == 0) break;
 
             int idx = colecao2.pesquisaSequencial(entrada);
             if (idx >= 0)
@@ -279,7 +340,7 @@ public class SeqSearch {
         }
 
         // Log
-        try (PrintWriter log = new PrintWriter(new FileWriter("844387_insercao.txt"))) {
+        try (PrintWriter log = new PrintWriter(new FileWriter("844387_sequencial.txt"))) {
             log.printf("844387\t%d\t%d\t%.2f",
                 colecao2.comparacoes, colecao2.movimentacoes, tempo);
         }
