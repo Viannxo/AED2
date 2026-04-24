@@ -1,12 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-import pubsInOut.tp2q5.ColecaoRestaurantes;
-import pubsInOut.tp2q5.Data;
-import pubsInOut.tp2q5.Hora;
-import pubsInOut.tp2q5.Price;
-import pubsInOut.tp2q5.Restaurante;
-import pubsInOut.tp2q5.TiposCozinha;
 
 // --- Classes Auxiliares de Formatação (Conforme seu código) ---
 

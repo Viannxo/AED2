@@ -129,9 +129,9 @@ class Restaurante {
         this.aberto = aberto;
     }
 
-    public int getId()       { return id; }
-    public String getNome()  { return nome; }
-    public String getCidade(){ return cidade; }
+    public int getId()        { return id; }
+    public String getNome()   { return nome; }
+    public String getCidade() { return cidade; }
 
     public static Restaurante parseRestaurante(String s) {
         Scanner sc = new Scanner(s);
@@ -205,39 +205,57 @@ class ColecaoRestaurantes {
         if (n < cRest.length) cRest[n++] = r;
     }
 
-    public int getN()              { return n; }
-    public Restaurante get(int i)  { return cRest[i]; }
+    public int getN()                     { return n; }
+    public Restaurante get(int i)         { return cRest[i]; }
     public void set(int i, Restaurante r) { cRest[i] = r; }
 }
 
 // --- Main ---
 
-public class SeqSearch {
+public class MergeSearch {
 
-    static double comparacoes  = 0;
+    static double comparacoes   = 0;
     static double movimentacoes = 0;
 
-    // Insertion Sort — chave: nome (alfabético crescente)
-    public static void insertionSort(ColecaoRestaurantes col) {
-        int n = col.getN();
-        for (int i = 1; i < n; i++) {
-            Restaurante chave = col.get(i);
-            movimentacoes++;
-            int j = i - 1;
+    // Merge — chave primária: cidade | desempate: nome (ambos crescente)
+    public static void merge(ColecaoRestaurantes col, int left, int mid, int right) {
+        int tamL = mid - left + 1;
+        int tamR = right - mid;
 
-            while (j >= 0) {
+        Restaurante[] L = new Restaurante[tamL];
+        Restaurante[] R = new Restaurante[tamR];
+
+        for (int i = 0; i < tamL; i++) { L[i] = col.get(left + i);  movimentacoes++; }
+        for (int j = 0; j < tamR; j++) { R[j] = col.get(mid + 1 + j); movimentacoes++; }
+
+        int i = 0, j = 0, k = left;
+
+        while (i < tamL && j < tamR) {
+            comparacoes++;
+            int cmp = L[i].getCidade().compareTo(R[j].getCidade());
+            if (cmp == 0) {
                 comparacoes++;
-                if (col.get(j).getNome().compareTo(chave.getNome()) > 0) {
-                    col.set(j + 1, col.get(j));
-                    movimentacoes++;
-                    j--;
-                } else {
-                    break;
-                }
+                cmp = L[i].getNome().compareTo(R[j].getNome());
             }
-
-            col.set(j + 1, chave);
+            if (cmp <= 0) {
+                col.set(k, L[i]); i++;
+            } else {
+                col.set(k, R[j]); j++;
+            }
             movimentacoes++;
+            k++;
+        }
+
+        while (i < tamL) { col.set(k, L[i]); movimentacoes++; i++; k++; }
+        while (j < tamR) { col.set(k, R[j]); movimentacoes++; j++; k++; }
+    }
+
+    public static void mergeSort(ColecaoRestaurantes col, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(col, left, mid);
+            mergeSort(col, mid + 1, right);
+            merge(col, left, mid, right);
         }
     }
 
@@ -251,7 +269,7 @@ public class SeqSearch {
 
     public static void main(String[] args) throws IOException {
         Scanner in = new Scanner(System.in);
-        ColecaoRestaurantes colecao     = new ColecaoRestaurantes();
+        ColecaoRestaurantes colecao      = new ColecaoRestaurantes();
         ColecaoRestaurantes selecionados = new ColecaoRestaurantes();
 
         colecao.lerCsv("/tmp/restaurantes.csv");
@@ -264,26 +282,19 @@ public class SeqSearch {
             idBusca = in.nextInt();
         }
 
-        // Ordenar por nome via Insertion Sort
+        // Ordenar por cidade (desempate: nome) via MergeSort
         long inicio = System.nanoTime();
-        insertionSort(selecionados);
+        mergeSort(selecionados, 0, selecionados.getN() - 1);
         long fim = System.nanoTime();
         double tempo = (fim - inicio) / 1_000_000.0;
 
-        // Fase 2: pesquisa sequencial por nome até FIM
-        in.nextLine(); // consome o \n pendente após o último nextInt()
-        String entrada = in.nextLine();
-        while (entrada.compareTo("FIM") != 0) {
-            int idx = pesquisaSequencial(selecionados, entrada);
-            if (idx >= 0)
-                System.out.println("SIM");
-            else
-                System.out.println("NAO");
-            entrada = in.nextLine();
+        // Imprimir restaurantes ordenados por cidade (desempate: nome)
+        for (int i = 0; i < selecionados.getN(); i++) {
+            System.out.println(selecionados.get(i).formatar());
         }
 
         // Log
-        PrintWriter log = new PrintWriter(new FileWriter("844387_sequencial.txt"));
+        PrintWriter log = new PrintWriter(new FileWriter("844387_mergesort.txt"));
         log.printf(Locale.US, "844387\t%.0f\t%.0f\t%.2f", comparacoes, movimentacoes, tempo);
         log.close();
 
