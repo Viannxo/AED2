@@ -1,3 +1,4 @@
+package pubsInOut.tp2q7;
 import java.io.*;
 import java.util.*;
 
