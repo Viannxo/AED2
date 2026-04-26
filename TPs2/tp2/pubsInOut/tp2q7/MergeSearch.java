@@ -1,5 +1,4 @@
-package pubsInOut.tp2q7;
-import java.io.*;
+timport java.io.*;
 import java.util.*;
 
 // --- Classes Auxiliares de Formatação ---

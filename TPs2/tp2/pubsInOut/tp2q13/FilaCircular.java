@@ -1,6 +1,8 @@
-
+package pubsInOut.tp2q13;
 import java.io.*;
 import java.util.*;
+
+
 
 class Data {
     private int ano, mes, dia;
@@ -10,6 +12,8 @@ class Data {
         this.mes = mes;
         this.dia = dia;
     }
+
+    public int getAno() { return ano; }
 
     public static Data parseData(String s) {
         Scanner sc = new Scanner(s);
@@ -117,11 +121,11 @@ class Restaurante {
 
     public int getId() { return id; }
     public String getNome() { return nome; }
+    public int getAnoAbertura() { return dataAbertura.getAno(); }
 
     public static Restaurante parseRestaurante(String s) {
         Scanner sc = new Scanner(s);
         sc.useDelimiter(",");
-
         int id = sc.nextInt();
         String nome = sc.next();
         String cidade = sc.next();
@@ -129,17 +133,14 @@ class Restaurante {
         double avalia = Double.parseDouble(sc.next());
         String cozinhas = sc.next();
         TiposCozinha tpc = TiposCozinha.create(cozinhas);
-
         int preco = sc.next().length();
         String horas = sc.next();
-
         Scanner scH = new Scanner(horas);
         scH.useDelimiter("-");
         Hora hAbrir = Hora.parseHora(scH.next());
         Hora hFechar = Hora.parseHora(scH.next());
         Data dAbrir = Data.parseData(sc.next());
         boolean func = sc.nextBoolean();
-
         sc.close();
         scH.close();
         return new Restaurante(id, nome, cidade, capacidade, avalia, tpc, preco, dAbrir, hAbrir, hFechar, func);
@@ -155,67 +156,52 @@ class Restaurante {
     }
 }
 
-// Lista com alocação sequencial (array) de referências a Restaurante
-class Lista {
+// Fila Circular com alocação sequencial, tamanho fixo MAX=5
+class Fila {
+    private static final int MAX = 5;
     private Restaurante[] arr;
-    private int n;
+    private int inicio, fim, tamanho;
 
-    public Lista() {
-        arr = new Restaurante[1000];
-        n = 0;
+    public Fila() {
+        arr = new Restaurante[MAX];
+        inicio = 0;
+        fim = 0;
+        tamanho = 0;
     }
 
-    public int getN() { return n; }
-    public Restaurante get(int i) { return arr[i]; }
+    public boolean cheia() { return tamanho == MAX; }
+    public boolean vazia() { return tamanho == 0; }
+    public int getTamanho() { return tamanho; }
 
-    // Insere no início, remane os demais para a direita
-    public void inserirInicio(Restaurante r) {
-        for (int i = n; i > 0; i--)
-            arr[i] = arr[i - 1];
-        arr[0] = r;
-        n++;
+    // Retorna a média arredondada do ano de abertura dos elementos da fila
+    public int mediaAnoArredondada() {
+        double soma = 0;
+        for (int i = 0; i < tamanho; i++)
+            soma += arr[(inicio + i) % MAX].getAnoAbertura();
+        return (int) Math.round(soma / tamanho);
     }
 
-    // Insere na posição dada, remanejando os demais para a direita
-    public void inserir(Restaurante r, int posicao) {
-        for (int i = n; i > posicao; i--)
-            arr[i] = arr[i - 1];
-        arr[posicao] = r;
-        n++;
+    // Enfileira: se cheia, remove o primeiro antes de inserir
+    public Restaurante enfileirar(Restaurante r) {
+        Restaurante removido = null;
+        if (cheia()) removido = desenfileirar();
+        arr[fim] = r;
+        fim = (fim + 1) % MAX;
+        tamanho++;
+        return removido;
     }
 
-    // Insere no fim
-    public void inserirFim(Restaurante r) {
-        arr[n++] = r;
-    }
-
-    // Remove e retorna o primeiro registro, remanejando os demais para a esquerda
-    public Restaurante removerInicio() {
-        if (n == 0) return null;
-        Restaurante r = arr[0];
-        for (int i = 0; i < n - 1; i++)
-            arr[i] = arr[i + 1];
-        arr[--n] = null;
+    // Desenfileira: remove e retorna o primeiro elemento
+    public Restaurante desenfileirar() {
+        if (vazia()) return null;
+        Restaurante r = arr[inicio];
+        inicio = (inicio + 1) % MAX;
+        tamanho--;
         return r;
     }
 
-    // Remove e retorna o registro na posição dada, remanejando os demais para a esquerda
-    public Restaurante remover(int posicao) {
-        if (posicao < 0 || posicao >= n) return null;
-        Restaurante r = arr[posicao];
-        for (int i = posicao; i < n - 1; i++)
-            arr[i] = arr[i + 1];
-        arr[--n] = null;
-        return r;
-    }
-
-    // Remove e retorna o último registro
-    public Restaurante removerFim() {
-        if (n == 0) return null;
-        Restaurante r = arr[--n];
-        arr[n] = null;
-        return r;
-    }
+    // Retorna o elemento na posição i (do início ao fim)
+    public Restaurante get(int i) { return arr[(inicio + i) % MAX]; }
 }
 
 // Coleção auxiliar para leitura do CSV e busca por ID
@@ -232,22 +218,20 @@ class ColecaoRestaurantes {
         try {
             Scanner fsc = new Scanner(new File(path));
             if (fsc.hasNextLine()) fsc.nextLine();
-            while (fsc.hasNextLine() && n < cRest.length) {
+            while (fsc.hasNextLine() && n < cRest.length)
                 cRest[n++] = Restaurante.parseRestaurante(fsc.nextLine());
-            }
             fsc.close();
         } catch (FileNotFoundException e) {}
     }
 
     public Restaurante buscarPorId(int id) {
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++)
             if (cRest[i].getId() == id) return cRest[i];
-        }
         return null;
     }
 }
 
-public class OrdLista {
+public class FilaCircular {
     public static void main(String[] args) throws Exception {
 
         Scanner in = new Scanner(System.in);
@@ -255,19 +239,23 @@ public class OrdLista {
         ColecaoRestaurantes colecao = new ColecaoRestaurantes();
         colecao.lerCsv("/tmp/restaurantes.csv");
 
-        Lista lista = new Lista();
+        Fila fila = new Fila();
 
-        // Parte 1: leitura dos IDs iniciais até -1
+        // Parte 1: enfileira IDs iniciais até -1
         while (in.hasNextLine()) {
             String linha = in.nextLine().trim();
             if (linha.equals("-1")) break;
             if (linha.isEmpty()) continue;
             int id = Integer.parseInt(linha);
             Restaurante r = colecao.buscarPorId(id);
-            if (r != null) lista.inserirFim(r);
+            if (r != null) {
+                Restaurante removido = fila.enfileirar(r);
+                if (removido != null) System.out.println("(R)" + removido.getNome());
+                System.out.println("(I)" + fila.mediaAnoArredondada());
+            }
         }
 
-        // Parte 2: n operações de inserção/remoção
+        // Parte 2: n operações I (enfileirar) e R (desenfileirar)
         int qtd = Integer.parseInt(in.nextLine().trim());
 
         for (int op = 0; op < qtd; op++) {
@@ -275,41 +263,23 @@ public class OrdLista {
             String[] parts = linha.split(" ");
             String cmd = parts[0];
 
-            if (cmd.equals("II")) {
+            if (cmd.equals("I")) {
                 int id = Integer.parseInt(parts[1]);
                 Restaurante r = colecao.buscarPorId(id);
-                if (r != null) lista.inserirInicio(r);
-
-            } else if (cmd.equals("IF")) {
-                int id = Integer.parseInt(parts[1]);
-                Restaurante r = colecao.buscarPorId(id);
-                if (r != null) lista.inserirFim(r);
-
-            } else if (cmd.equals("I*")) {
-                int pos = Integer.parseInt(parts[1]);
-                int id  = Integer.parseInt(parts[2]);
-                Restaurante r = colecao.buscarPorId(id);
-                if (r != null) lista.inserir(r, pos);
-
-            } else if (cmd.equals("RI")) {
-                Restaurante r = lista.removerInicio();
-                if (r != null) System.out.println("(R)" + r.getNome());
-
-            } else if (cmd.equals("RF")) {
-                Restaurante r = lista.removerFim();
-                if (r != null) System.out.println("(R)" + r.getNome());
-
-            } else if (cmd.equals("R*")) {
-                int pos = Integer.parseInt(parts[1]);
-                Restaurante r = lista.remover(pos);
+                if (r != null) {
+                    Restaurante removido = fila.enfileirar(r);
+                    if (removido != null) System.out.println("(R)" + removido.getNome());
+                    System.out.println("(I)" + fila.mediaAnoArredondada());
+                }
+            } else if (cmd.equals("R")) {
+                Restaurante r = fila.desenfileirar();
                 if (r != null) System.out.println("(R)" + r.getNome());
             }
         }
 
-        // Impressão final: todos os registros da lista do primeiro ao último
-        for (int i = 0; i < lista.getN(); i++) {
-            System.out.println(lista.get(i).formatar());
-        }
+        // Impressão final: do primeiro ao último
+        for (int i = 0; i < fila.getTamanho(); i++)
+            System.out.println(fila.get(i).formatar());
 
         in.close();
     }

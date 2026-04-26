@@ -1,5 +1,4 @@
-package pubsInOut.tp2q9;
-import java.io.*;
+timport java.io.*;
 import java.util.*;
 
 class Data {
