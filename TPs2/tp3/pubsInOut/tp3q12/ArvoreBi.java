@@ -300,7 +300,7 @@ public class ArvoreBi{
         try {
             FileWriter fw = new FileWriter("matricula_arvore_binaria.txt");
             PrintWriter pw = new PrintWriter(fw);
-            pw.printf(Locale.US, "800000\t%d\t%.4f\n", comparacoes, tempo_ms);
+            pw.printf(Locale.US, "844387\t%d\t%.4f\n", comparacoes, tempo_ms);
             pw.close();
         } catch (IOException e) {
             // Ignora silenciosamente

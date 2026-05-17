@@ -307,7 +307,7 @@ public class ListDuplaQuickS {
             FileWriter fw = new FileWriter("matricula_quicksort_flexivel.txt");
             PrintWriter pw = new PrintWriter(fw);
             // Substitua pelo número de matrícula se aplicável
-            pw.printf(Locale.US, "800000\t%d\t%d\t%.4f\n", comparacoes, movimentacoes, tempo_ms);
+            pw.printf(Locale.US, "844387\t%d\t%d\t%.4f\n", comparacoes, movimentacoes, tempo_ms);
             pw.close();
         } catch (IOException e) {
             // Ignora erros de escrita do arquivo de log

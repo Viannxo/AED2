@@ -332,9 +332,9 @@ void SelecSortFlex(ListaFlexivel *l, int *comparacoes, int *movimentacoes) {
 
 // --- Alteração: Renomeado de criar_log para cLog ---
 void cLog(int comparacoes, int movimentacoes, double tempo_ms) {
-    FILE *log = fopen("matricula.selecao_flexivel.txt", "w");
+    FILE *log = fopen("844387.selecao_flexivel.txt", "w");
     if (log != NULL) {
-        fprintf(log, "800000\t%d\t%d\t%lf\n", comparacoes, movimentacoes, tempo_ms);
+        fprintf(log, "844387\t%d\t%d\t%lf\n", comparacoes, movimentacoes, tempo_ms);
         fclose(log);
     }
 }
